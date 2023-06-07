@@ -1,0 +1,12 @@
+*.pyc
+/backend/db.sqlite3
+.DS_Store
+.env
+/staticfiles/*
+/mediafiles/*
+__pycache__/
+/.vscode/
+/dist/
+*.egg-info
+db.sqlite3
+.idea/
