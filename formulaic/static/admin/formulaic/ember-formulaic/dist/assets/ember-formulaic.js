@@ -1077,7 +1077,7 @@ define('ember-formulaic/initializers/data-adapter', ['exports', 'ember'], functi
   /*
     This initializer is here to keep backwards compatibility with code depending
     on the `data-adapter` initializer (before Ember Data was an addon).
-  
+
     Should be removed for Ember Data 3.x
   */
 
@@ -1090,31 +1090,31 @@ define('ember-formulaic/initializers/data-adapter', ['exports', 'ember'], functi
 define('ember-formulaic/initializers/ember-data', ['exports', 'ember-data/setup-container', 'ember-data/index'], function (exports, _emberDataSetupContainer, _emberDataIndex) {
 
   /*
-  
+
     This code initializes Ember-Data onto an Ember application.
-  
+
     If an Ember.js developer defines a subclass of DS.Store on their application,
     as `App.StoreService` (or via a module system that resolves to `service:store`)
     this code will automatically instantiate it and make it available on the
     router.
-  
+
     Additionally, after an application's controllers have been injected, they will
     each have the store made available to them.
-  
+
     For example, imagine an Ember.js application with the following classes:
-  
+
     App.StoreService = DS.Store.extend({
       adapter: 'custom'
     });
-  
+
     App.PostsController = Ember.Controller.extend({
       // ...
     });
-  
+
     When the application is initialized, `App.ApplicationStore` will automatically be
     instantiated, and the instance of `App.PostsController` will have its `store`
     property set to that instance.
-  
+
     Note that this code will only be run if the `ember-application` package is
     loaded. If Ember Data is being used in an environment other than a
     typical application (e.g., node.js where only `ember-runtime` is available),
@@ -1177,7 +1177,7 @@ define('ember-formulaic/initializers/injectStore', ['exports', 'ember'], functio
   /*
     This initializer is here to keep backwards compatibility with code depending
     on the `injectStore` initializer (before Ember Data was an addon).
-  
+
     Should be removed for Ember Data 3.x
   */
 
@@ -1192,7 +1192,7 @@ define('ember-formulaic/initializers/store', ['exports', 'ember'], function (exp
   /*
     This initializer is here to keep backwards compatibility with code depending
     on the `store` initializer (before Ember Data was an addon).
-  
+
     Should be removed for Ember Data 3.x
   */
 
@@ -1249,7 +1249,7 @@ define('ember-formulaic/initializers/transforms', ['exports', 'ember'], function
   /*
     This initializer is here to keep backwards compatibility with code depending
     on the `transforms` initializer (before Ember Data was an addon).
-  
+
     Should be removed for Ember Data 3.x
   */
 
@@ -1582,7 +1582,16 @@ define('ember-formulaic/routes/form/fields', ['exports', 'ember'], function (exp
                     model: field.get('hiddenfield'),
                     controller: 'form/fields/hiddenfield'
                 });
-            } else {
+            } else if (field.get("captchafield")) {
+            // render CaptchaField edit template
+            this.render('form/fields/captchafield', {
+                into: 'form.fields',
+                outlet: 'sidebar',
+                model: field.get('captchafield'),
+                controller: 'form/fields/captchafield'
+            });
+            }
+            else {
                 // Raise exception: field type not implemented
                 throw new Error("Formulaic: field type not implemented");
             }
@@ -1761,6 +1770,32 @@ define('ember-formulaic/routes/form/fields', ['exports', 'ember'], function (exp
 
                 this.openEditField(field);
             },
+
+            createCaptchaField: function(subtype) {
+              if (subtype !== "captcha") {
+                  // Raise exception: field subtype not implemented
+                  throw new Error("Formulaic: captcha field subtype `" + subtype + "` not implemented");
+              }
+
+              let field = this._createBaseField(subtype);
+
+              let captchafield = this.store.createRecord('captchafield', {
+                  display_name: field.get('display_name'),
+                  data_name: field.get('data_name'),
+                  slug: field.get('slug'),
+                  required: field.get('required'),
+                  help_text: field.get('help_text'),
+                  model_class: field.get('model_class'),
+                  position: field.get('position'),
+                  css_class: field.get('css_class'),
+                  form: field.get('form'),
+                  subtype: subtype
+              });
+
+              field.set('captchafield', captchafield);
+
+              this.openEditField(field);
+          },
 
             reloadFields: function reloadFields() {
                 /**
