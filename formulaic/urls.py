@@ -22,4 +22,5 @@ urlpatterns = [
     re_path(r'^api/submissionsources/$', views.SubmissionSourceView.as_view()),
     re_path(r'^api/', include(router.urls)),
     re_path(r'^download/submissions/$', views.download_submissions),
+    re_path('captcha/', include('captcha.urls')),
 ]
