@@ -6,5 +6,6 @@ export default BaseField.extend({
     choicefield: DS.belongsTo('choicefield', {async: false}),
     booleanfield: DS.belongsTo('booleanfield', {async: false}),
     hiddenfield: DS.belongsTo('hiddenfield', {async: false}),
+    captchafield: DS.belongsTo('captchafield', {async: false}),
     content_type: DS.attr('number')
 });

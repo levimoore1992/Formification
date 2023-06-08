@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 import phonenumbers
 from six import iteritems, python_2_unicode_compatible, u
-
+from captcha.fields import CaptchaField
 from formulaic import fields as custom_fields
 from formulaic.auto_populate import attempt_kv_auto_populate
 from formulaic.signals import submission_complete
@@ -281,6 +281,7 @@ class TextField(Field):
     SUBTYPE_EMAIL = u"email"
     SUBTYPE_PHONE_NUMBER = u"phone_number"
     SUBTYPE_INTEGER = u"integer"
+    SUBTYPE_CAPTCHA = u"captcha"
 
     SUBTYPES = {
         SUBTYPE_TEXT: {
@@ -308,6 +309,10 @@ class TextField(Field):
             u"field_class": custom_fields.FullNameField,
             u"widget_class": widgets.TextInput
         },
+        SUBTYPE_CAPTCHA: {
+            u"field_class": CaptchaField,
+            u"widget_class": widgets.TextInput
+        }
     }
 
     textarea_rows = models.PositiveIntegerField(blank=True, null=True)
@@ -548,7 +553,25 @@ class ChoiceField(Field):
         super(ChoiceField, self).save(**kwargs)
 
 
+class CaptchaTestField(Field):
+    field_type = Field.TYPE_TEXT
+    captcha = CaptchaField()
 
+    def get_implementation(self, widget_attrs={}):
+        widget_attrs[u"data-id"] = self.id
+        widget = widgets.TextInput(attrs=widget_attrs)
+
+        return self.captcha.__class__(
+            label=self.display_name,
+            required=self.required,
+            widget=widget
+        )
+
+    def save(self, **kwargs):
+        self.content_type = ContentType.objects.get_for_model(type(self))
+        self.model_class = self.__class__.__name__.lower()
+
+        super(CaptchaTestField, self).save(**kwargs)
 class RuleResult(models.Model):
     ACTION_SHOW = 'show'
     ACTION_HIDE = 'hide'

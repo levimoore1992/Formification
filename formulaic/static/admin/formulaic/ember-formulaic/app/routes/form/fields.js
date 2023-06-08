@@ -67,6 +67,8 @@ export default Ember.Route.extend({
                 model: field.get('booleanfield'),
                 controller: 'form/fields/booleanfield'
             });
+
+
         } else if (field.get("hiddenfield")) {
             // render BooleanField edit template
             this.render('form/fields/hiddenfield', {
@@ -75,7 +77,18 @@ export default Ember.Route.extend({
                 model: field.get('hiddenfield'),
                 controller: 'form/fields/hiddenfield'
             });
-        } else {
+        } else if (field.get("captchafield")) {
+            // render CaptchaField edit template
+            this.render('form/fields/captchafield', {
+                into: 'form.fields',
+                outlet: 'sidebar',
+                model: field.get('captchafield'),
+                controller: 'form/fields/captchafield'
+            });
+        }
+
+
+        else {
             // Raise exception: field type not implemented
             throw new Error("Formulaic: field type not implemented");
         }
@@ -251,6 +264,32 @@ export default Ember.Route.extend({
             });
 
             field.set('hiddenfield', hiddenfield);
+
+            this.openEditField(field);
+        },
+
+        createCaptchaField: function(subtype) {
+            if (subtype !== "captcha") {
+                // Raise exception: field subtype not implemented
+                throw new Error("Formulaic: captcha field subtype `" + subtype + "` not implemented");
+            }
+
+            let field = this._createBaseField(subtype);
+
+            let captchafield = this.store.createRecord('captchafield', {
+                display_name: field.get('display_name'),
+                data_name: field.get('data_name'),
+                slug: field.get('slug'),
+                required: field.get('required'),
+                help_text: field.get('help_text'),
+                model_class: field.get('model_class'),
+                position: field.get('position'),
+                css_class: field.get('css_class'),
+                form: field.get('form'),
+                subtype: subtype
+            });
+
+            field.set('captchafield', captchafield);
 
             this.openEditField(field);
         },

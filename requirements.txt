@@ -9,4 +9,5 @@ us==0.9.1
 beautifulsoup4==4.4.1
 tzlocal==1.2.2
 phonenumbers==8.12.50
+django-simple-captcha==0.5.17
 six
