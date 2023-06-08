@@ -281,6 +281,7 @@ class TextField(Field):
     SUBTYPE_EMAIL = u"email"
     SUBTYPE_PHONE_NUMBER = u"phone_number"
     SUBTYPE_INTEGER = u"integer"
+    SUBTYPE_CAPTCHA = u"captcha"
 
     SUBTYPES = {
         SUBTYPE_TEXT: {
@@ -308,6 +309,10 @@ class TextField(Field):
             u"field_class": custom_fields.FullNameField,
             u"widget_class": widgets.TextInput
         },
+        SUBTYPE_CAPTCHA: {
+            u"field_class": CaptchaField,
+            u"widget_class": widgets.TextInput
+        }
     }
 
     textarea_rows = models.PositiveIntegerField(blank=True, null=True)
