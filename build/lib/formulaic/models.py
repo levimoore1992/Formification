@@ -9,13 +9,14 @@ from django.forms import fields, widgets
 from django.utils import timezone
 from django.utils.functional import cached_property
 import phonenumbers
-from six import iteritems, python_2_unicode_compatible, u
+from six import iteritems, u
 
 from formulaic import fields as custom_fields
 from formulaic.auto_populate import attempt_kv_auto_populate
 from formulaic.signals import submission_complete
 from formulaic.validators import validate_mixed_content, validate_phone_number
 from formulaic.widgets import PhoneInput
+from django.core.exceptions import ValidationError
 
 
 
@@ -162,8 +163,7 @@ class Option(models.Model):
     name = models.CharField(max_length=250)
     value = models.CharField(max_length=250)
     position = models.PositiveIntegerField("Position", default=0)
-
-    list = models.ForeignKey(OptionList, on_delete=models.CASCADE)
+    list = models.ForeignKey('OptionList', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -172,10 +172,18 @@ class Option(models.Model):
         ordering = ('position',)
 
     def save(self, *args, **kwargs):
-        if not self.position:
-            max = self.objects.aggregate(m=Max("position"))["m"]
-            self.position = 10 + (max or 0)
-        super(Option, self).save(*args, **kwargs)
+        # Make sure the Option object has an associated OptionList
+        if not self.list:
+            raise ValidationError("Option must be associated with an OptionList")
+
+        with transaction.atomic():
+            if not self.position:
+                # Lock on the rows of Option model to prevent race condition
+                self.__class__.objects.select_for_update()
+                max_position = self.__class__.objects.aggregate(m=models.Max("position"))["m"]
+                self.position = 10 + (max_position or 0)
+
+            super().save(*args, **kwargs)
 
 
 
@@ -953,7 +961,7 @@ class SubmissionKeyValue(models.Model):
             if not isinstance(value, list):
                 value = [value]
 
-            selected_options = [options_lookup.get(json.loads(v)) for v in value]
+            selected_options = [options_lookup.get(json.loads(v), str(v)) for v in value]
             return ",".join(selected_options)
 
         return self.output_value
