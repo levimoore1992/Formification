@@ -19,19 +19,20 @@ from formulaic.widgets import PhoneInput
 from django.core.exceptions import ValidationError
 
 
-
 class Form(models.Model):
-    BASE_COLUMN_HEADERS = ['date', 'source', 'promo_source']
+    BASE_COLUMN_HEADERS = ["date", "source", "promo_source"]
     name = models.CharField(max_length=500)
     slug = models.SlugField(max_length=200)
     success_message = models.TextField(null=True, blank=True)
     privacy_policy = models.ForeignKey(
-        'PrivacyPolicy', on_delete=models.PROTECT, null=True, blank=True
+        "PrivacyPolicy", on_delete=models.PROTECT, null=True, blank=True
     )
 
     archived = models.BooleanField(default=False)
 
-    def create_submission(self, cleaned_data, source=None, metadata=None, promo_source=None):
+    def create_submission(
+        self, cleaned_data, source=None, metadata=None, promo_source=None
+    ):
 
         with transaction.atomic():
             # case submission
@@ -69,20 +70,23 @@ class Form(models.Model):
                     key_value.submission = submission
                     key_value.key = key
                     key_value.field = self.get_field_by_slug(key)
-                    key_value.value = attempt_kv_auto_populate(key_value, value, cleaned_data)
+                    key_value.value = attempt_kv_auto_populate(
+                        key_value, value, cleaned_data
+                    )
                     key_value_pairs.append(key_value)
 
             SubmissionKeyValue.objects.bulk_create(key_value_pairs)
 
-            submission_complete.send(sender=self.__class__, submission=submission, form=self)
+            submission_complete.send(
+                sender=self.__class__, submission=submission, form=self
+            )
 
         return submission
 
     @cached_property
     def column_headers(self):
-        return (
-            Form.BASE_COLUMN_HEADERS +
-            list(self.field_set.all().order_by('position').values_list("slug", flat=True))
+        return Form.BASE_COLUMN_HEADERS + list(
+            self.field_set.all().order_by("position").values_list("slug", flat=True)
         )
 
     def get_field_by_slug(self, slug):
@@ -94,7 +98,11 @@ class Form(models.Model):
 
     @staticmethod
     def autocomplete_search_fields():
-        return ("id__iexact", "name__icontains", "slug__icontains", )
+        return (
+            "id__iexact",
+            "name__icontains",
+            "slug__icontains",
+        )
 
     def __str__(self):
         if self.archived:
@@ -103,8 +111,10 @@ class Form(models.Model):
             return self.name
 
     class Meta:
-        ordering = ('archived', 'name',)
-
+        ordering = (
+            "archived",
+            "name",
+        )
 
 
 class PrivacyPolicy(models.Model):
@@ -117,7 +127,9 @@ class PrivacyPolicy(models.Model):
     name = models.CharField(max_length=250)
     text = RichTextField(
         config_name="very_basic",
-        validators=[validate_mixed_content, ]
+        validators=[
+            validate_mixed_content,
+        ],
     )
 
     class Meta:
@@ -125,7 +137,6 @@ class PrivacyPolicy(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class OptionList(models.Model):
@@ -153,7 +164,6 @@ class OptionList(models.Model):
         return self.name
 
 
-
 class Option(models.Model):
     """
     An individual selectable option, represented as a member
@@ -163,13 +173,13 @@ class Option(models.Model):
     name = models.CharField(max_length=250)
     value = models.CharField(max_length=250)
     position = models.PositiveIntegerField("Position", default=0)
-    list = models.ForeignKey('OptionList', on_delete=models.CASCADE)
+    list = models.ForeignKey("OptionList", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ('position',)
+        ordering = ("position",)
 
     def save(self, *args, **kwargs):
         # Make sure the Option object has an associated OptionList
@@ -180,11 +190,12 @@ class Option(models.Model):
             if not self.position:
                 # Lock on the rows of Option model to prevent race condition
                 self.__class__.objects.select_for_update()
-                max_position = self.__class__.objects.aggregate(m=models.Max("position"))["m"]
+                max_position = self.__class__.objects.aggregate(
+                    m=models.Max("position")
+                )["m"]
                 self.position = 10 + (max_position or 0)
 
             super().save(*args, **kwargs)
-
 
 
 class OptionGroup(models.Model):
@@ -210,14 +221,13 @@ class OptionGroup(models.Model):
         return "{}:{}".format(self.list.name, self.name)
 
     class Meta:
-        ordering = ('position',)
+        ordering = ("position",)
 
     def save(self, *args, **kwargs):
         if not self.position:
             max = self.objects.aggregate(m=Max("position"))["m"]
             self.position = 10 + (max or 0)
         super(OptionGroup, self).save(*args, **kwargs)
-
 
 
 class Field(models.Model):
@@ -265,7 +275,7 @@ class Field(models.Model):
         return getattr(self, model)
 
     class Meta:
-        ordering = ['position']
+        ordering = ["position"]
 
         # TODO: based on requirements, this should probably be removed
         # might need to support duplicates across multiple pages
@@ -283,38 +293,38 @@ class Field(models.Model):
 
 
 class TextField(Field):
-    SUBTYPE_TEXT = u"text"
-    SUBTYPE_TEXTAREA = u"textarea"
-    SUBTYPE_FULL_NAME = u"full_name"
-    SUBTYPE_EMAIL = u"email"
-    SUBTYPE_PHONE_NUMBER = u"phone_number"
-    SUBTYPE_INTEGER = u"integer"
+    SUBTYPE_TEXT = "text"
+    SUBTYPE_TEXTAREA = "textarea"
+    SUBTYPE_FULL_NAME = "full_name"
+    SUBTYPE_EMAIL = "email"
+    SUBTYPE_PHONE_NUMBER = "phone_number"
+    SUBTYPE_INTEGER = "integer"
 
     SUBTYPES = {
         SUBTYPE_TEXT: {
-            u"field_class": fields.CharField,
-            u"widget_class": widgets.TextInput
+            "field_class": fields.CharField,
+            "widget_class": widgets.TextInput,
         },
         SUBTYPE_TEXTAREA: {
-            u"field_class": fields.CharField,
-            u"widget_class": widgets.Textarea
+            "field_class": fields.CharField,
+            "widget_class": widgets.Textarea,
         },
         SUBTYPE_EMAIL: {
-            u"field_class": fields.EmailField,
-            u"widget_class": widgets.TextInput
+            "field_class": fields.EmailField,
+            "widget_class": widgets.TextInput,
         },
         SUBTYPE_PHONE_NUMBER: {
-            u"field_class": fields.CharField,
-            u"widget_class": PhoneInput,
-            u"validators": [validate_phone_number],
+            "field_class": fields.CharField,
+            "widget_class": PhoneInput,
+            "validators": [validate_phone_number],
         },
         SUBTYPE_INTEGER: {
-            u"field_class": fields.IntegerField,
-            u"widget_class": widgets.TextInput
+            "field_class": fields.IntegerField,
+            "widget_class": widgets.TextInput,
         },
         SUBTYPE_FULL_NAME: {
-            u"field_class": custom_fields.FullNameField,
-            u"widget_class": widgets.TextInput
+            "field_class": custom_fields.FullNameField,
+            "widget_class": widgets.TextInput,
         },
     }
 
@@ -326,23 +336,23 @@ class TextField(Field):
 
         subtype_options = TextField.SUBTYPES[self.subtype]
 
-        widget_attrs[u"data-id"] = self.id
+        widget_attrs["data-id"] = self.id
 
         if self.subtype == TextField.SUBTYPE_TEXTAREA:
-            widget_attrs[u"rows"] = str(self.textarea_rows if self.textarea_rows else 4)
+            widget_attrs["rows"] = str(self.textarea_rows if self.textarea_rows else 4)
 
-        widget_class = subtype_options[u"widget_class"]
+        widget_class = subtype_options["widget_class"]
         widget = widget_class(attrs=widget_attrs)
 
-        field_class = subtype_options[u"field_class"]
+        field_class = subtype_options["field_class"]
 
-        validators = subtype_options.get(u"validators", [])
+        validators = subtype_options.get("validators", [])
 
         return field_class(
             label=self.display_name,
             required=self.required,
             widget=widget,
-            validators=validators
+            validators=validators,
         )
 
     def save(self, **kwargs):
@@ -358,14 +368,10 @@ class HiddenField(Field):
     value = models.CharField(max_length=500, null=True, blank=True)
 
     def get_implementation(self, widget_attrs={}):
-        widget_attrs[u"data-id"] = self.id
+        widget_attrs["data-id"] = self.id
         widget = widgets.HiddenInput(attrs=widget_attrs)
 
-        return fields.CharField(
-            widget=widget,
-            initial=self.value,
-            required=False
-        )
+        return fields.CharField(widget=widget, initial=self.value, required=False)
 
 
 class BooleanField(Field):
@@ -374,14 +380,14 @@ class BooleanField(Field):
     default_checked = models.BooleanField()
 
     def get_implementation(self, widget_attrs={}):
-        widget_attrs[u"data-id"] = self.id
+        widget_attrs["data-id"] = self.id
         widget = widgets.CheckboxInput(attrs=widget_attrs)
 
         return fields.BooleanField(
             label=self.display_name,
             required=self.required,
             widget=widget,
-            initial=self.default_checked
+            initial=self.default_checked,
         )
 
     def save(self, **kwargs):
@@ -392,33 +398,33 @@ class BooleanField(Field):
 
 
 class ChoiceField(Field):
-    DEFAULT_TEXT_BACKUP = u"(Choose One)"
+    DEFAULT_TEXT_BACKUP = "(Choose One)"
 
-    SUBTYPE_SELECT = u"select"
-    SUBTYPE_SELECTMULTIPLE = u"select_multiple"
-    SUBTYPE_RADIOSELECT = u"radio_select"
-    SUBTYPE_CHECKBOXSELECTMULTIPLE = u"checkbox_select_multiple"
+    SUBTYPE_SELECT = "select"
+    SUBTYPE_SELECTMULTIPLE = "select_multiple"
+    SUBTYPE_RADIOSELECT = "radio_select"
+    SUBTYPE_CHECKBOXSELECTMULTIPLE = "checkbox_select_multiple"
 
     SUBTYPES = {
         SUBTYPE_SELECT: {
-            u"field_class": fields.ChoiceField,
-            u"widget_class": widgets.Select,
-            u"multiple": False,
+            "field_class": fields.ChoiceField,
+            "widget_class": widgets.Select,
+            "multiple": False,
         },
         SUBTYPE_SELECTMULTIPLE: {
-            u"field_class": fields.MultipleChoiceField,
-            u"widget_class": widgets.SelectMultiple,
-            u"multiple": True,
+            "field_class": fields.MultipleChoiceField,
+            "widget_class": widgets.SelectMultiple,
+            "multiple": True,
         },
         SUBTYPE_RADIOSELECT: {
-            u"field_class": fields.ChoiceField,
-            u"widget_class": widgets.RadioSelect,
-            u"multiple": False,
+            "field_class": fields.ChoiceField,
+            "widget_class": widgets.RadioSelect,
+            "multiple": False,
         },
         SUBTYPE_CHECKBOXSELECTMULTIPLE: {
-            u"field_class": fields.MultipleChoiceField,
-            u"widget_class": widgets.CheckboxSelectMultiple,
-            u"multiple": True,
+            "field_class": fields.MultipleChoiceField,
+            "widget_class": widgets.CheckboxSelectMultiple,
+            "multiple": True,
         },
     }
 
@@ -453,7 +459,7 @@ class ChoiceField(Field):
 
     @property
     def supports_multiple_values(self):
-        return ChoiceField.SUBTYPES[self.subtype][u"multiple"]
+        return ChoiceField.SUBTYPES[self.subtype]["multiple"]
 
     @property
     def default_option(self):
@@ -495,10 +501,10 @@ class ChoiceField(Field):
     def get_implementation(self, widget_attrs={}):
         subtype_options = ChoiceField.SUBTYPES[self.subtype]
 
-        widget_attrs[u"data-id"] = self.id
-        widget_class = subtype_options[u"widget_class"]
+        widget_attrs["data-id"] = self.id
+        widget_class = subtype_options["widget_class"]
 
-        field_class = subtype_options[u"field_class"]
+        field_class = subtype_options["field_class"]
 
         default_options = []
         if self.needs_default_text:
@@ -520,19 +526,17 @@ class ChoiceField(Field):
                 required=self.required,
                 choices=default_options,
                 initial=initial_value,
-                widget=widget_class(attrs=widget_attrs)
+                widget=widget_class(attrs=widget_attrs),
             )
         else:
             # GroupedChoiceField implementation
-            groups = {
-                None: default_options
-            }
+            groups = {None: default_options}
 
             for group in self.option_list.cached_groups:
                 group_options = []
 
                 if self.needs_default_text:
-                    group_options.append((u"", self.default_text_or_backup))
+                    group_options.append(("", self.default_text_or_backup))
 
                 for option in group.cached_options:
                     group_options.append((option.id, option.name))
@@ -546,7 +550,7 @@ class ChoiceField(Field):
                 initial=initial_value,
                 field_class=field_class,
                 widget_class=widget_class,
-                widget_attrs=widget_attrs
+                widget_attrs=widget_attrs,
             )
 
     def save(self, **kwargs):
@@ -556,48 +560,42 @@ class ChoiceField(Field):
         super(ChoiceField, self).save(**kwargs)
 
 
-
 class RuleResult(models.Model):
-    ACTION_SHOW = 'show'
-    ACTION_HIDE = 'hide'
-    ACTION_REQUIRE = 'require'
-    ACTION_OPTIONAL = 'optional'
-    ACTION_CHANGE_OPTION_GROUP = 'change-option-group'
+    ACTION_SHOW = "show"
+    ACTION_HIDE = "hide"
+    ACTION_REQUIRE = "require"
+    ACTION_OPTIONAL = "optional"
+    ACTION_CHANGE_OPTION_GROUP = "change-option-group"
 
     ACTION_CHOICES = (
-        (ACTION_SHOW, 'Show'),
-        (ACTION_HIDE, 'Hide'),
-        (ACTION_REQUIRE, 'Require (Override)'),
-        (ACTION_OPTIONAL, 'Optional (Override)'),
-        (ACTION_CHANGE_OPTION_GROUP, 'Change Option Group'),
+        (ACTION_SHOW, "Show"),
+        (ACTION_HIDE, "Hide"),
+        (ACTION_REQUIRE, "Require (Override)"),
+        (ACTION_OPTIONAL, "Optional (Override)"),
+        (ACTION_CHANGE_OPTION_GROUP, "Change Option Group"),
     )
 
     action = models.CharField(max_length=50, choices=ACTION_CHOICES)
     field = models.ForeignKey(Field, on_delete=models.PROTECT)
     rule = models.ForeignKey(
-        'Rule', on_delete=models.CASCADE, related_name='results', blank=True, null=True
+        "Rule", on_delete=models.CASCADE, related_name="results", blank=True, null=True
     )
     option_group = models.ForeignKey(
-        'OptionGroup', on_delete=models.PROTECT, blank=True, null=True
+        "OptionGroup", on_delete=models.PROTECT, blank=True, null=True
     )
 
     def __str__(self):
-        return u("{}: '{}' field '{}' if rule '{}' is true".format(
-            self.id,
-            self.action,
-            self.field_id,
-            self.rule_id
-        ))
-
+        return u(
+            "{}: '{}' field '{}' if rule '{}' is true".format(
+                self.id, self.action, self.field_id, self.rule_id
+            )
+        )
 
 
 class Rule(models.Model):
-    OPERATOR_AND = 'and'
-    OPERATOR_OR = 'or'
-    OPERATOR_CHOICES = (
-        (OPERATOR_AND, 'And'),
-        (OPERATOR_OR, 'Or')
-    )
+    OPERATOR_AND = "and"
+    OPERATOR_OR = "or"
+    OPERATOR_CHOICES = ((OPERATOR_AND, "And"), (OPERATOR_OR, "Or"))
 
     form = models.ForeignKey(Form, on_delete=models.CASCADE)
     # rule_set
@@ -608,33 +606,32 @@ class Rule(models.Model):
         return u('{}: position "{}"'.format(self.id, self.position))
 
     class Meta:
-        ordering = ('position',)
-
+        ordering = ("position",)
 
 
 class RuleCondition(models.Model):
-    OPERATOR_IS = 'is'
-    OPERATOR_IS_NOT = 'is_not'
-    OPERATOR_CONTAINS = 'contains'
-    OPERATOR_DOES_NOT_CONTAIN = 'does_not_contain'
-    OPERATOR_BEGINS_WITH = 'begins_with'
-    OPERATOR_ENDS_WITH = 'ends_with'
-    OPERATOR_GREATER_THAN = 'greater_than'
-    OPERATOR_LESS_THAN = 'less_than'
-    OPERATOR_ANY_SELECTED = 'any_selected'
-    OPERATOR_ALL_SELECTED = 'all_selected'
+    OPERATOR_IS = "is"
+    OPERATOR_IS_NOT = "is_not"
+    OPERATOR_CONTAINS = "contains"
+    OPERATOR_DOES_NOT_CONTAIN = "does_not_contain"
+    OPERATOR_BEGINS_WITH = "begins_with"
+    OPERATOR_ENDS_WITH = "ends_with"
+    OPERATOR_GREATER_THAN = "greater_than"
+    OPERATOR_LESS_THAN = "less_than"
+    OPERATOR_ANY_SELECTED = "any_selected"
+    OPERATOR_ALL_SELECTED = "all_selected"
 
     OPERATOR_CHOICES = (
-        (OPERATOR_IS, 'is'),
-        (OPERATOR_IS_NOT, 'is_not'),
-        (OPERATOR_CONTAINS, 'contains'),
-        (OPERATOR_DOES_NOT_CONTAIN, 'does_not_contain'),
-        (OPERATOR_BEGINS_WITH, 'begins_with'),
-        (OPERATOR_ENDS_WITH, 'ends_with'),
-        (OPERATOR_GREATER_THAN, 'greater_than'),
-        (OPERATOR_LESS_THAN, 'less_than'),
-        (OPERATOR_ANY_SELECTED, 'any_selected'),
-        (OPERATOR_ALL_SELECTED, 'all_selected')
+        (OPERATOR_IS, "is"),
+        (OPERATOR_IS_NOT, "is_not"),
+        (OPERATOR_CONTAINS, "contains"),
+        (OPERATOR_DOES_NOT_CONTAIN, "does_not_contain"),
+        (OPERATOR_BEGINS_WITH, "begins_with"),
+        (OPERATOR_ENDS_WITH, "ends_with"),
+        (OPERATOR_GREATER_THAN, "greater_than"),
+        (OPERATOR_LESS_THAN, "less_than"),
+        (OPERATOR_ANY_SELECTED, "any_selected"),
+        (OPERATOR_ALL_SELECTED, "all_selected"),
     )
 
     position = models.PositiveIntegerField()
@@ -656,25 +653,19 @@ class RuleCondition(models.Model):
         self.value_string = json.dumps(value)
 
     def __str__(self):
-        return u('{}: field "{}" {} ______'.format(
-            self.id,
-            self.field_id,
-            self.operator
-        ))
+        return u(
+            '{}: field "{}" {} ______'.format(self.id, self.field_id, self.operator)
+        )
 
     class Meta:
-        ordering = ('position',)
-
+        ordering = ("position",)
 
 
 class DisplayCondition(models.Model):
     IS = "is"
     IS_NOT = "is_not"
 
-    VALUE_OPTIONS = (
-        (IS, "is"),
-        (IS_NOT, "is not")
-    )
+    VALUE_OPTIONS = ((IS, "is"), (IS_NOT, "is not"))
 
     values = models.TextField()
     value_option = models.CharField(max_length=15, choices=VALUE_OPTIONS)
@@ -691,8 +682,12 @@ class DisplayCondition(models.Model):
 
         value_is = self.value_option == DisplayCondition.IS
         if specific_watched_field.field_type == Field.TYPE_SELECT:
-            default_option_in_values = specific_watched_field.default_option in json.loads(self.values)
-            return default_option_in_values if value_is else not default_option_in_values
+            default_option_in_values = (
+                specific_watched_field.default_option in json.loads(self.values)
+            )
+            return (
+                default_option_in_values if value_is else not default_option_in_values
+            )
         else:
             # TODO: setup default values which could match the DisplayCondition values
             return False
@@ -702,7 +697,7 @@ class DisplayCondition(models.Model):
             self.affected_field_id,
             self.watched_field_id,
             self.value_option,
-            self.values
+            self.values,
         )
 
 
@@ -735,16 +730,17 @@ class SubmissionQuerySet(models.QuerySet):
         return r
 
     def _execute_prefetch_custom_data(self):
-        """Performs the prefetch on the custom data in bulk
-        """
+        """Performs the prefetch on the custom data in bulk"""
 
         # First, determine what is the smallest set of options that we need to
         # create and then generate the options lookup dictionary.
         relevant_choices = (
-            SubmissionKeyValue.objects
-            .filter(submission__in=self, field__subtype__in=ChoiceField.SUBTYPES.keys())
+            SubmissionKeyValue.objects.filter(
+                submission__in=self, field__subtype__in=ChoiceField.SUBTYPES.keys()
+            )
             .values_list("value_charfield", flat=True)
-            .order_by("value_charfield").distinct()
+            .order_by("value_charfield")
+            .distinct()
         )
 
         relevant_choices = [json.loads(choice) for choice in relevant_choices]
@@ -758,7 +754,9 @@ class SubmissionQuerySet(models.QuerySet):
             # Extend our cleaned list of relevant choices.
             # Make sure we only count integers.
             if isinstance(choice, list):
-                cleaned_relevant_choices.extend([int(val) for val in choice if val.isdigit()])
+                cleaned_relevant_choices.extend(
+                    [int(val) for val in choice if val.isdigit()]
+                )
 
             # These should already be integers. But better to make sure nothing
             # is slipping through.
@@ -769,10 +767,8 @@ class SubmissionQuerySet(models.QuerySet):
         cleaned_relevant_choices = set(cleaned_relevant_choices)
 
         # Create the options lookup dictionary.
-        options = (
-            Option.objects
-            .filter(id__in=cleaned_relevant_choices)
-            .values_list("id", "name")
+        options = Option.objects.filter(id__in=cleaned_relevant_choices).values_list(
+            "id", "name"
         )
         options_lookup = dict(options)
 
@@ -798,7 +794,9 @@ class SubmissionQuerySet(models.QuerySet):
 
         self._should_prefetch_custom_data = True
         prefetch_values_qs = SubmissionKeyValue.objects.select_related("field")
-        return self.select_related("form").prefetch_related(Prefetch("values", queryset=prefetch_values_qs))
+        return self.select_related("form").prefetch_related(
+            Prefetch("values", queryset=prefetch_values_qs)
+        )
 
 
 class SubmissionManager(models.Manager):
@@ -820,14 +818,14 @@ class Submission(models.Model):
         max_length=200,
         null=True,
         blank=True,
-        help_text="Name of the specific form placement the user filled out (e.g. sidebar-subscribe)"
+        help_text="Name of the specific form placement the user filled out (e.g. sidebar-subscribe)",
     )
 
     promo_source = models.CharField(
         max_length=200,
         null=True,
         blank=True,
-        help_text="Source passed through metadata variable promo_source"
+        help_text="Source passed through metadata variable promo_source",
     )
 
     @cached_property
@@ -858,7 +856,7 @@ class Submission(models.Model):
         options_lookup and importantly calls the _output_value_with_options_lookup
         method on the SubmissionKeyValue objects. Calling this with the lookup
         allows for much more efficient bulk exports.
-         """
+        """
         if not self._prefetched_custom_data_cache:
 
             column_headers = self.form.column_headers
@@ -866,7 +864,9 @@ class Submission(models.Model):
 
             for key_value in self.values.all():
                 if key_value.key in column_headers:
-                    data[key_value.key] = key_value._output_value_with_options_lookup(options_lookup)
+                    data[key_value.key] = key_value._output_value_with_options_lookup(
+                        options_lookup
+                    )
 
             self._prefetched_custom_data_cache = data
 
@@ -886,7 +886,6 @@ class Submission(models.Model):
     @metadata.setter
     def metadata(self, value):
         self.metadata_serialized = json.dumps(value)
-
 
 
 class SubmissionKeyValue(models.Model):
@@ -939,7 +938,9 @@ class SubmissionKeyValue(models.Model):
             if not isinstance(value, list):
                 value = [value]
 
-            selected_options = Option.objects.filter(id__in=value).values_list('name', flat=True)
+            selected_options = Option.objects.filter(id__in=value).values_list(
+                "name", flat=True
+            )
 
             value = ",".join(selected_options)
 
@@ -961,7 +962,9 @@ class SubmissionKeyValue(models.Model):
             if not isinstance(value, list):
                 value = [value]
 
-            selected_options = [options_lookup.get(json.loads(v), str(v)) for v in value]
+            selected_options = [
+                options_lookup.get(json.loads(v), str(v)) for v in value
+            ]
             return ",".join(selected_options)
 
         return self.output_value

@@ -37,9 +37,9 @@ def send_file(request, filename, full_path):
     https://djangosnippets.org/snippets/365/
     """
     wrapper = open(full_path)
-    response = StreamingHttpResponse(wrapper, content_type='text/csv')
+    response = StreamingHttpResponse(wrapper, content_type="text/csv")
     # response['Content-Length'] = os.path.getsize(full_path)
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response["Content-Disposition"] = 'attachment; filename="{}"'.format(filename)
     # response.set_cookie("fileDownload", value="true", max_age=60*60, path="/")
     return response
 
@@ -50,7 +50,7 @@ def state_from_zip(zipcode):
     except IndexError:
         return None
 
-    if zip_info.city in ('APO', 'FPO', 'DPO'):
+    if zip_info.city in ("APO", "FPO", "DPO"):
         # we cannot lookup state names for APO/FPO/DPO zipcodes;
         # probably we need better handling in audb for military PO addresses
         return zip_info.state

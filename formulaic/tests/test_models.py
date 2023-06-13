@@ -42,7 +42,7 @@ class SubmissionTestCase(TestCase):
         post_data = {
             "text-field-1": "My Test Value",
             "phone-number-1": "(202) 555 1234",
-            "phone-number-1_full": "+12025551234"
+            "phone-number-1_full": "+12025551234",
         }
 
         form = models.Form.objects.get(pk=self.form_id)

@@ -7,7 +7,6 @@ from formulaic import models
 
 
 class FieldViewsetTestCase(TestCase):
-
     def setUp(self):
         """Construct a collection of objects that will frequently get used.
 
@@ -15,7 +14,9 @@ class FieldViewsetTestCase(TestCase):
         of a Rule. self.field_2 relates to a RuleResult of the same Rule.
         """
         User = get_user_model()
-        self.superuser = User.objects.create_superuser('superuser', 'superuser@test.com', "password")
+        self.superuser = User.objects.create_superuser(
+            "superuser", "superuser@test.com", "password"
+        )
         self.client = APIClient()
 
         # create form
@@ -43,22 +44,18 @@ class FieldViewsetTestCase(TestCase):
         )
 
         self.rule = models.Rule.objects.create(
-            form=self.form,
-            position=1,
-            operator=models.Rule.OPERATOR_AND
+            form=self.form, position=1, operator=models.Rule.OPERATOR_AND
         )
         self.condition = models.RuleCondition.objects.create(
             rule=self.rule,
             field=self.field_1,
             position=1,
             operator=models.RuleCondition.OPERATOR_CONTAINS,
-            value_string="testing"
+            value_string="testing",
         )
 
         self.result = models.RuleResult.objects.create(
-            rule=self.rule,
-            field=self.field_2,
-            action=models.RuleResult.ACTION_SHOW
+            rule=self.rule, field=self.field_2, action=models.RuleResult.ACTION_SHOW
         )
 
     def test_destroy_last_condition(self):
@@ -68,7 +65,7 @@ class FieldViewsetTestCase(TestCase):
         and Rule are all deleted.
         """
         # Make the request to destroy.
-        url = reverse('textfield-detail', kwargs={'pk': self.field_1.pk})
+        url = reverse("textfield-detail", kwargs={"pk": self.field_1.pk})
         self.client.force_authenticate(user=self.superuser)
         resp = self.client.delete(url)
         self.assertEqual(resp.status_code, 204)
@@ -76,7 +73,9 @@ class FieldViewsetTestCase(TestCase):
         # Confirm that field_1, rule, condition, result are all deleted.
         self.assertFalse(models.TextField.objects.filter(pk=self.field_1.pk).exists())
         self.assertFalse(models.Rule.objects.filter(pk=self.rule.pk).exists())
-        self.assertFalse(models.RuleCondition.objects.filter(pk=self.condition.pk).exists())
+        self.assertFalse(
+            models.RuleCondition.objects.filter(pk=self.condition.pk).exists()
+        )
         self.assertFalse(models.RuleResult.objects.filter(pk=self.result.pk).exists())
 
         # Confirm that field_2 still exists.
@@ -107,23 +106,27 @@ class FieldViewsetTestCase(TestCase):
             field=field_3,
             position=2,
             operator=models.RuleCondition.OPERATOR_CONTAINS,
-            value_string="testing"
+            value_string="testing",
         )
 
         # Make the request to destroy.
-        url = reverse('textfield-detail', kwargs={'pk': self.field_1.pk})
+        url = reverse("textfield-detail", kwargs={"pk": self.field_1.pk})
         self.client.force_authenticate(user=self.superuser)
         resp = self.client.delete(url)
         self.assertEqual(resp.status_code, 204)
 
         # Confirm that only field_1 and the related condition is deleted.
         self.assertFalse(models.TextField.objects.filter(pk=self.field_1.pk).exists())
-        self.assertFalse(models.RuleCondition.objects.filter(pk=self.condition.pk).exists())
+        self.assertFalse(
+            models.RuleCondition.objects.filter(pk=self.condition.pk).exists()
+        )
 
         # Confirm that field_2, the new condition and result still exist.
         self.assertTrue(models.TextField.objects.filter(pk=self.field_2.pk).exists())
         self.assertTrue(models.Rule.objects.filter(pk=self.rule.pk).exists())
-        self.assertTrue(models.RuleCondition.objects.filter(pk=extra_condition.pk).exists())
+        self.assertTrue(
+            models.RuleCondition.objects.filter(pk=extra_condition.pk).exists()
+        )
         self.assertTrue(models.RuleResult.objects.filter(pk=self.result.pk).exists())
 
     def test_destroy_last_result(self):
@@ -133,7 +136,7 @@ class FieldViewsetTestCase(TestCase):
         and Rule are all deleted.
         """
         # Make the request to destroy.
-        url = reverse('textfield-detail', kwargs={'pk': self.field_2.pk})
+        url = reverse("textfield-detail", kwargs={"pk": self.field_2.pk})
         self.client.force_authenticate(user=self.superuser)
         resp = self.client.delete(url)
         self.assertEqual(resp.status_code, 204)
@@ -141,7 +144,9 @@ class FieldViewsetTestCase(TestCase):
         # Confirm that field_2, rule, condition, result are all deleted.
         self.assertFalse(models.TextField.objects.filter(pk=self.field_2.pk).exists())
         self.assertFalse(models.Rule.objects.filter(pk=self.rule.pk).exists())
-        self.assertFalse(models.RuleCondition.objects.filter(pk=self.condition.pk).exists())
+        self.assertFalse(
+            models.RuleCondition.objects.filter(pk=self.condition.pk).exists()
+        )
         self.assertFalse(models.RuleResult.objects.filter(pk=self.result.pk).exists())
 
         # Confirm that field_1 still exists.
@@ -168,13 +173,11 @@ class FieldViewsetTestCase(TestCase):
         )
 
         extra_result = models.RuleResult.objects.create(
-            rule=self.rule,
-            field=field_3,
-            action=models.RuleResult.ACTION_SHOW
+            rule=self.rule, field=field_3, action=models.RuleResult.ACTION_SHOW
         )
 
         # Make the request to destroy.
-        url = reverse('textfield-detail', kwargs={'pk': self.field_2.pk})
+        url = reverse("textfield-detail", kwargs={"pk": self.field_2.pk})
         self.client.force_authenticate(user=self.superuser)
         resp = self.client.delete(url)
         self.assertEqual(resp.status_code, 204)
@@ -187,4 +190,6 @@ class FieldViewsetTestCase(TestCase):
         self.assertTrue(models.TextField.objects.filter(pk=self.field_1.pk).exists())
         self.assertTrue(models.Rule.objects.filter(pk=self.rule.pk).exists())
         self.assertTrue(models.RuleResult.objects.filter(pk=extra_result.pk).exists())
-        self.assertTrue(models.RuleCondition.objects.filter(pk=self.condition.pk).exists())
+        self.assertTrue(
+            models.RuleCondition.objects.filter(pk=self.condition.pk).exists()
+        )

@@ -60,29 +60,35 @@ class CustomForm(forms.Form):
             # convert rule's conditions
             conditions_list = []
             for condition in rule.conditions.all():
-                conditions_list.append({
-                    "field_id": condition.field_id,
-                    "field_slug": self.field_slugs_by_id[condition.field_id],
-                    "operator": condition.operator,
-                    "value": condition.value,
-                })
+                conditions_list.append(
+                    {
+                        "field_id": condition.field_id,
+                        "field_slug": self.field_slugs_by_id[condition.field_id],
+                        "operator": condition.operator,
+                        "value": condition.value,
+                    }
+                )
 
             # convert rule's results
             results_list = []
             for result in rule.results.all():
-                results_list.append({
-                    "field_id": result.field_id,
-                    "field_slug": self.field_slugs_by_id[result.field_id],
-                    "action": result.action,
-                    "option_group_id": result.option_group_id,
-                })
+                results_list.append(
+                    {
+                        "field_id": result.field_id,
+                        "field_slug": self.field_slugs_by_id[result.field_id],
+                        "action": result.action,
+                        "option_group_id": result.option_group_id,
+                    }
+                )
 
             # convert rule
-            rules_list.append({
-                "operator": rule.operator,
-                "conditions": conditions_list,
-                "results": results_list,
-            })
+            rules_list.append(
+                {
+                    "operator": rule.operator,
+                    "conditions": conditions_list,
+                    "results": results_list,
+                }
+            )
 
         return rules_list
 
@@ -102,7 +108,7 @@ class CustomForm(forms.Form):
     class Media:
         # TODO: handle caching; can't currently use querystring because of
         # django internals
-        js = ("formulaic/js/custom_form.js", )
+        js = ("formulaic/js/custom_form.js",)
         css = {
-            "all": ("formulaic/css/custom_form.css", ),
+            "all": ("formulaic/css/custom_form.css",),
         }

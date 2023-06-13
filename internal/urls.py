@@ -14,24 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-try:
-    # django >= 1.10
-    from django.urls import path, include
-except:
-    # django < 1.10
-    from django.conf.urls import url as path
-    from django.conf.urls import include
+
+from django.urls import path
+from django.urls import include
 
 from . import views
 
 urlpatterns = [
-    path(
-        'completed/',
-        views.test_formulaic_form_complete,
-        name='form-complete'
-    ),
-
-    path('formulaic/', include('formulaic.urls')),
-    path('admin/', admin.site.urls),
-    path('', views.test_formulaic_form),
+    path("completed/", views.test_formulaic_form_complete, name="form-complete"),
+    path("formulaic/", include("formulaic.urls")),
+    path("admin/", admin.site.urls),
+    path("", views.test_formulaic_form),
 ]

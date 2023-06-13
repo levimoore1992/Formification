@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('formulaic', '0003_auto_20201230_1406'),
+        ("formulaic", "0003_auto_20201230_1406"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='promo_source',
-            field=models.CharField(blank=True, help_text='Source passed through metadata variable promo_source', max_length=200, null=True),
+            model_name="submission",
+            name="promo_source",
+            field=models.CharField(
+                blank=True,
+                help_text="Source passed through metadata variable promo_source",
+                max_length=200,
+                null=True,
+            ),
         ),
     ]
