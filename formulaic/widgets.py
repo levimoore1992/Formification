@@ -47,7 +47,7 @@ class PhoneInput(TextInput):
         if ext_pre in formatted_number:
             # Find the location of the extension, slice the string and add it
             # to full_number
-            full_number += formatted_number[formatted_number.find(ext_pre) :]
+            full_number += formatted_number[formatted_number.find(ext_pre):]
 
         return full_number
 
