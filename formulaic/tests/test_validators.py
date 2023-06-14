@@ -5,7 +5,6 @@ from django.forms import ValidationError
 
 
 class PhoneNumberTestCase(TestCase):
-
     def test_valid_phone_number(self):
         """Confirm that no exception gets raised by this function when provided
         with a "valid" phone number"""

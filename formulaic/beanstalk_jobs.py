@@ -11,7 +11,7 @@ from handl.models import DownloadableFile
 def create_submission_csv(data):
 
     try:
-        form = Form.objects.get(pk=data.get('form_pk'))
+        form = Form.objects.get(pk=data.get("form_pk"))
     except Form.DoesNotExist:
         raise handl_errors.HandlTaskMissingData
 
@@ -20,8 +20,7 @@ def create_submission_csv(data):
 
         files = [
             DownloadableFile(
-                filename='{}-submissions.csv'.format(form.slug),
-                file=outfile
+                filename="{}-submissions.csv".format(form.slug), file=outfile
             )
         ]
 

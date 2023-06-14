@@ -16,11 +16,10 @@ def boot_django():
             }
         },
         INSTALLED_APPS=(
-            'django.contrib.contenttypes',
-
-            'django_filters',
-            'rest_framework',
-            'formulaic',
+            "django.contrib.contenttypes",
+            "django_filters",
+            "rest_framework",
+            "formulaic",
         ),
         TIME_ZONE="UTC",
         USE_TZ=True,

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('formulaic', '0001_initial'),
+        ("formulaic", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='field',
-            name='enabled',
+            model_name="field",
+            name="enabled",
             field=models.BooleanField(default=True),
         ),
     ]

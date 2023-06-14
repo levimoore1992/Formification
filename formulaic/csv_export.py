@@ -13,9 +13,8 @@ def export_submissions_to_file(form, output_file):
 
     # Prefetch the values, with the field select_related for speed.
     submission_qs = (
-        models.Submission.objects
-        .filter(form=form)
-        .order_by('id')
+        models.Submission.objects.filter(form=form)
+        .order_by("id")
         .prefetch_custom_data()
     )
 
@@ -26,13 +25,13 @@ def export_submissions_to_file(form, output_file):
             local_tz = get_localzone()
             d = submission.date_created
             if d.tzinfo is None or d.tzinfo.utcoffset(d) is None:
-                date_created_aware = (
-                    pytz.timezone(local_tz.zone).localize(submission.date_created)
+                date_created_aware = pytz.timezone(local_tz.zone).localize(
+                    submission.date_created
                 )
             else:
                 date_created_aware = submission.date_created
-            row["date"] = date_created_aware.strftime('%m/%d/%Y %H:%M')
+            row["date"] = date_created_aware.strftime("%m/%d/%Y %H:%M")
             row["source"] = submission.source
-            row['promo_source'] = submission.promo_source
+            row["promo_source"] = submission.promo_source
             row_batch.append({k: u(v) for (k, v) in row.items()})
         writer.writerows(row_batch)

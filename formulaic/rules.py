@@ -63,6 +63,7 @@ class Field(object):
 
     def has_value(self, value):
         from django.forms import CheckboxInput
+
         if type(self.form_field) is CheckboxInput:
             return self.value
         elif type(self.value) is list:
@@ -73,7 +74,9 @@ class Field(object):
     @property
     def visible(self):
         if self._visible is None:
-            raise exceptions.NotSetException("Field hasn't been set active/inactive, yet")
+            raise exceptions.NotSetException(
+                "Field hasn't been set active/inactive, yet"
+            )
         else:
             return self._visible
 
@@ -155,4 +158,6 @@ class RuleResult(object):
             elif self.action == RuleResult.ACTION_CHANGE_OPTION_GROUP:
                 pass
             else:
-                raise exceptions.InvalidParamException("Invalid RuleResult action: {}".format(self.action))
+                raise exceptions.InvalidParamException(
+                    "Invalid RuleResult action: {}".format(self.action)
+                )

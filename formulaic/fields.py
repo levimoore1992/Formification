@@ -1,7 +1,13 @@
 import json
 
 from django.core.exceptions import ValidationError
-from django.forms.fields import CharField, ChoiceField, HiddenInput, MultiValueField, Select
+from django.forms.fields import (
+    CharField,
+    ChoiceField,
+    HiddenInput,
+    MultiValueField,
+    Select,
+)
 from django.forms.utils import ErrorList
 from nameparser import HumanName
 from six import iteritems, text_type
@@ -26,10 +32,23 @@ class FullNameField(CharField):
 
 
 class GroupedChoiceField(MultiValueField):
-    def __init__(self, groups={}, initial=None, field_class=ChoiceField, widget_class=Select, widget_attrs={}, *args, **kwargs):
+    def __init__(
+        self,
+        groups={},
+        initial=None,
+        field_class=ChoiceField,
+        widget_class=Select,
+        widget_attrs={},
+        *args,
+        **kwargs
+    ):
         # create hidden_field for tracking selected field
-        data_initial = initial if isinstance(initial, text_type) else json.dumps(initial)
-        group_id_field = CharField(widget=HiddenInput(attrs={"data-initial": data_initial}), initial=None)
+        data_initial = (
+            initial if isinstance(initial, text_type) else json.dumps(initial)
+        )
+        group_id_field = CharField(
+            widget=HiddenInput(attrs={"data-initial": data_initial}), initial=None
+        )
 
         fields = [group_id_field]
         widgets = [group_id_field.widget]
@@ -37,15 +56,10 @@ class GroupedChoiceField(MultiValueField):
         self.group_field_mapping = {}
         field_index = 1
         for key, options in iteritems(groups):
-            attrs = {
-                "data-group-id": json.dumps(key)
-            }
+            attrs = {"data-group-id": json.dumps(key)}
             attrs.update(widget_attrs)
 
-            field = field_class(
-                choices=options,
-                widget=widget_class(attrs=attrs)
-            )
+            field = field_class(choices=options, widget=widget_class(attrs=attrs))
             fields.append(field)
 
             widgets.append(field.widget)
@@ -54,9 +68,13 @@ class GroupedChoiceField(MultiValueField):
             self.group_field_mapping[key] = field_index
             field_index += 1
 
-        multi_widget = GroupedChoiceWidget(widgets=widgets, widget_name=widget_class.__name__.lower())
+        multi_widget = GroupedChoiceWidget(
+            widgets=widgets, widget_name=widget_class.__name__.lower()
+        )
 
-        super(GroupedChoiceField, self).__init__(widget=multi_widget, initial=initial_values, fields=fields, *args, **kwargs)
+        super(GroupedChoiceField, self).__init__(
+            widget=multi_widget, initial=initial_values, fields=fields, *args, **kwargs
+        )
 
     def compress(self, data_list):
         """
@@ -86,7 +104,7 @@ class GroupedChoiceField(MultiValueField):
 
         # ensure `value` is a list
         if value and not isinstance(value, (list, tuple)):
-            raise ValidationError(self.error_messages['invalid'])
+            raise ValidationError(self.error_messages["invalid"])
 
         # clean data
         for i, field in enumerate(self.fields):
@@ -110,7 +128,6 @@ class GroupedChoiceField(MultiValueField):
         out = self.compress(clean_data)
 
         if self.required and not out:
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages["required"])
 
         return out
-

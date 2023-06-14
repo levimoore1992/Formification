@@ -50,12 +50,10 @@ def form_submissions(form):
         </a>
       </div>
     """
-    return mark_safe(template.format(
-        pk=form.pk
-    ))
+    return mark_safe(template.format(pk=form.pk))
 
 
-form_submissions.short_description = u'Submissions'
+form_submissions.short_description = "Submissions"
 form_submissions.allow_tags = True
 
 
@@ -87,11 +85,9 @@ class FormAdmin(admin.ModelAdmin):
         form_actions,
     )
 
-    list_filter = (
-        "archived",
-    )
+    list_filter = ("archived",)
 
-    search_fields = ('name',)
+    search_fields = ("name",)
 
     actions = [archive_forms]
 
@@ -100,15 +96,15 @@ class FormAdmin(admin.ModelAdmin):
         super_media = super(FormAdmin, self).media
         form_media = forms.Media(
             css={
-                'all': (
-                    '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css',
-                    'admin/formulaic/css/form.css',
+                "all": (
+                    "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css",
+                    "admin/formulaic/css/form.css",
                 )
             },
             js=(
-                '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
-                'admin/formulaic/js/form.js',
-            )
+                "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js",
+                "admin/formulaic/js/form.js",
+            ),
         )
 
         return super_media + form_media
@@ -117,19 +113,28 @@ class FormAdmin(admin.ModelAdmin):
         def wrap(view):
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
+
             wrapper.model_admin = self
             return update_wrapper(wrapper, view)
 
         url_patterns = super(FormAdmin, self).get_urls()
 
         return [
-            re_path(r'^([0-9]+)/archive/$', wrap(self.archive_view), name="formulaic_form_archive"),
-            re_path(r'^([0-9]+)/unarchive/$', wrap(self.unarchive_view), name="formulaic_form_unarchive"),
+            re_path(
+                r"^([0-9]+)/archive/$",
+                wrap(self.archive_view),
+                name="formulaic_form_archive",
+            ),
+            re_path(
+                r"^([0-9]+)/unarchive/$",
+                wrap(self.unarchive_view),
+                name="formulaic_form_unarchive",
+            ),
             # pattern eats remaining URL path used by `ember-formulaic`
-            re_path(r'^([0-9]+)/.+$', wrap(self.changeform_view)),
+            re_path(r"^([0-9]+)/.+$", wrap(self.changeform_view)),
         ] + url_patterns
 
-    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
 
         # Quick redirect to /change. This is only applicable for django 1.8,
         # and can be removed after dropping support.
@@ -148,29 +153,26 @@ class FormAdmin(admin.ModelAdmin):
             raise Http404("Form does not exist")
 
         environment_config = {
-            'modulePrefix': 'ember-formulaic',
-            'environment': 'production',
-            'rootURL': self.root_url,
-            'locationType': 'auto',
-            'tinyMCE': {
-                'version': 4,  # default 4.4,
-                'load': True
-            },
-            'EmberENV': {
-                'FEATURES': {
+            "modulePrefix": "ember-formulaic",
+            "environment": "production",
+            "rootURL": self.root_url,
+            "locationType": "auto",
+            "tinyMCE": {"version": 4, "load": True},  # default 4.4,
+            "EmberENV": {
+                "FEATURES": {
                     # Here you can enable experimental features on an ember canary build
                     # e.g. 'with-controller': true
                 },
-                'EXTEND_PROTOTYPES': {
+                "EXTEND_PROTOTYPES": {
                     # Prevent Ember Data from overriding Date.parse.
-                    'Date': False
-                }
+                    "Date": False
+                },
             },
-            'APP': {
+            "APP": {
                 # Here you can pass flags/options to your application instance
                 # when it is created
-                'API_HOST': '',
-                'API_NAMESPACE': 'formulaic/api',
+                "API_HOST": "",
+                "API_NAMESPACE": "formulaic/api",
                 "name": "ember-formulaic",
                 "version": "0.0.0+a30ae212",
                 "API_ADD_TRAILING_SLASHES": True,
@@ -179,22 +181,26 @@ class FormAdmin(admin.ModelAdmin):
         }
 
         extra_context = extra_context or {}
-        extra_context.update({
-            "title": _('Change %s') % force_str(self.opts.verbose_name),
-            "form_id": object_id,
-            "opts": self.opts,
-            "app_label": self.opts.app_label,
-            "has_change_permission": self.has_change_permission(request, form),
-            "original": form,
-            "task_data": json.dumps({'form_pk': object_id}),
-            "media": self.media,
-            "environment_config": json.dumps(environment_config),
-        })
+        extra_context.update(
+            {
+                "title": _("Change %s") % force_str(self.opts.verbose_name),
+                "form_id": object_id,
+                "opts": self.opts,
+                "app_label": self.opts.app_label,
+                "has_change_permission": self.has_change_permission(request, form),
+                "original": form,
+                "task_data": json.dumps({"form_pk": object_id}),
+                "media": self.media,
+                "environment_config": json.dumps(environment_config),
+            }
+        )
 
-        return super(FormAdmin, self).changeform_view(request, object_id=object_id, form_url=form_url, extra_context=extra_context)
+        return super(FormAdmin, self).changeform_view(
+            request, object_id=object_id, form_url=form_url, extra_context=extra_context
+        )
 
     def get_right_queryset(self, request):
-        if hasattr(self, 'get_queryset'):
+        if hasattr(self, "get_queryset"):
             return self.get_queryset(request)
         else:
             # django < 1.6
@@ -203,14 +209,12 @@ class FormAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         forms_data = [
             {
-                'pk': obj.pk,
-                'task_data': json.dumps({'form_pk': obj.pk}),
+                "pk": obj.pk,
+                "task_data": json.dumps({"form_pk": obj.pk}),
             }
             for obj in self.get_right_queryset(request)
         ]
-        context = {
-            'handl_task_forms_data': forms_data
-        }
+        context = {"handl_task_forms_data": forms_data}
         context.update(extra_context or {})
         return super(FormAdmin, self).changelist_view(request, extra_context=context)
 
@@ -238,14 +242,14 @@ class FormAdmin(admin.ModelAdmin):
     @property
     def root_url(self):
         for admin_url in self.urls:
-            if admin_url.name and admin_url.name.endswith('_changelist'):
-                return reverse('admin:%s' % admin_url.name)
-        raise Exception('Could not identify a root URL')
+            if admin_url.name and admin_url.name.endswith("_changelist"):
+                return reverse("admin:%s" % admin_url.name)
+        raise Exception("Could not identify a root URL")
 
     def get_actions(self, request):
         actions = super(FormAdmin, self).get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
+        if "delete_selected" in actions:
+            del actions["delete_selected"]
         return actions
 
     def has_delete_permission(self, request, obj=None):
@@ -256,12 +260,12 @@ class OptionInline(OrderableAdmin, admin.TabularInline):
     model = formulaic_models.Option
     ordering_field = "position"
     ordering_field_hide_input = True
-    prepopulated_fields = {'value': ('name',)}
+    prepopulated_fields = {"value": ("name",)}
 
     fields = (
-        'position',
-        'name',
-        'value',
+        "position",
+        "name",
+        "value",
     )
 
 
@@ -269,12 +273,12 @@ class OptionGroupInline(OrderableAdmin, admin.TabularInline):
     model = formulaic_models.OptionGroup
     ordering_field = "position"
     ordering_field_hide_input = True
-    filter_horizontal = ('options',)
+    filter_horizontal = ("options",)
 
     fields = (
-        'position',
-        'name',
-        'options',
+        "position",
+        "name",
+        "options",
     )
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
@@ -288,7 +292,9 @@ class OptionGroupInline(OrderableAdmin, admin.TabularInline):
             optionlist = request.formulaic_optionlist
             kwargs["queryset"] = formulaic_models.Option.objects.filter(list=optionlist)
 
-        return super(OptionGroupInline, self).formfield_for_manytomany(db_field, request=request, **kwargs)
+        return super(OptionGroupInline, self).formfield_for_manytomany(
+            db_field, request=request, **kwargs
+        )
 
 
 class OptionListAdmin(admin.ModelAdmin):
@@ -297,7 +303,7 @@ class OptionListAdmin(admin.ModelAdmin):
         OptionInline,
         OptionGroupInline,
     )
-    search_fields = ('name',)
+    search_fields = ("name",)
 
     def get_form(self, request, obj=None, **kwargs):
         """
@@ -311,9 +317,12 @@ class OptionListAdmin(admin.ModelAdmin):
 class PrivacyPolicyAdmin(admin.ModelAdmin):
     model = formulaic_models.PrivacyPolicy
 
-    fields = ('name', 'text',)
+    fields = (
+        "name",
+        "text",
+    )
 
-    search_fields = ('name',)
+    search_fields = ("name",)
 
 
 admin.site.register(formulaic_models.Form, FormAdmin)

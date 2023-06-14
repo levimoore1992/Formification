@@ -1,7 +1,4 @@
-from functools import partial
-from django import forms
 from django.contrib import admin
-import sys
 from formulaic.admin import FormAdmin, OptionListAdmin, PrivacyPolicyAdmin
 from formulaic.models import Form, OptionList, PrivacyPolicy
 

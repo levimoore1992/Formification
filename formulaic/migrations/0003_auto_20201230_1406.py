@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('formulaic', '0002_add_default_to_field_enabled'),
+        ("formulaic", "0002_add_default_to_field_enabled"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='option',
-            name='position',
-            field=models.PositiveIntegerField(default=0, verbose_name='Position'),
+            model_name="option",
+            name="position",
+            field=models.PositiveIntegerField(default=0, verbose_name="Position"),
         ),
         migrations.AlterField(
-            model_name='optiongroup',
-            name='position',
-            field=models.PositiveIntegerField(default=0, verbose_name='Position'),
+            model_name="optiongroup",
+            name="position",
+            field=models.PositiveIntegerField(default=0, verbose_name="Position"),
         ),
     ]

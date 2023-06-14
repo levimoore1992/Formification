@@ -10,3 +10,5 @@ beautifulsoup4==4.4.1
 tzlocal==1.2.2
 phonenumbers==8.12.50
 six
+flake8==5.0.4
+black==22.10.0

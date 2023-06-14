@@ -19,11 +19,15 @@ class PhoneInput(TextInput):
     """Phone input field built upon Jack O'Connor's intl-tel-input widget.
     https://github.com/jackocnr/intl-tel-input
     """
+
     def __init__(self, attrs=None):
         super().__init__(attrs=attrs)
 
         self.attrs["autocomplete"] = "tel"
-        self.attrs.setdefault("utilsScript", settings.STATIC_URL.rstrip("/") + "/formulaic/js/intTelInput_utils.js")
+        self.attrs.setdefault(
+            "utilsScript",
+            settings.STATIC_URL.rstrip("/") + "/formulaic/js/intTelInput_utils.js",
+        )
         self.attrs.setdefault("extensionPrefix", " ext. ")
         self.attrs.setdefault("fullSuffix", "_full")
 
@@ -43,7 +47,8 @@ class PhoneInput(TextInput):
         if ext_pre in formatted_number:
             # Find the location of the extension, slice the string and add it
             # to full_number
-            full_number += formatted_number[formatted_number.find(ext_pre):]
+            extension_start = formatted_number.find(ext_pre)
+            full_number += formatted_number[extension_start:]
 
         return full_number
 
@@ -53,7 +58,5 @@ class PhoneInput(TextInput):
             "formulaic/js/phoneNumber.js",
         )
         css = {
-            "all": (
-                "formulaic/css/intlTelInput.css",
-            ),
+            "all": ("formulaic/css/intlTelInput.css",),
         }
