@@ -5,7 +5,7 @@ import django
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.db.models import Max, Prefetch
-from django.forms import fields, widgets
+from django.forms import fields, widgets, PasswordInput
 from django.utils import timezone
 from django.utils.functional import cached_property
 import phonenumbers
@@ -289,6 +289,7 @@ class TextField(Field):
     SUBTYPE_EMAIL = u"email"
     SUBTYPE_PHONE_NUMBER = u"phone_number"
     SUBTYPE_INTEGER = u"integer"
+    SUBTYPE_PASSWORD = u"password"
 
     SUBTYPES = {
         SUBTYPE_TEXT: {
@@ -315,6 +316,10 @@ class TextField(Field):
         SUBTYPE_FULL_NAME: {
             u"field_class": custom_fields.FullNameField,
             u"widget_class": widgets.TextInput
+        },
+        SUBTYPE_PASSWORD: {
+            u"field_class": fields.CharField,
+            u"widget_class": PasswordInput
         },
     }
 
