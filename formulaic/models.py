@@ -295,65 +295,25 @@ class Field(models.Model):
 class TextField(Field):
     SUBTYPE_TEXT = "text"
     SUBTYPE_TEXTAREA = "textarea"
-    SUBTYPE_FULL_NAME = "full_name"
     SUBTYPE_EMAIL = "email"
     SUBTYPE_PHONE_NUMBER = "phone_number"
     SUBTYPE_INTEGER = "integer"
-
-    SUBTYPES = {
-        SUBTYPE_TEXT: {
-            "field_class": fields.CharField,
-            "widget_class": widgets.TextInput,
-        },
-        SUBTYPE_TEXTAREA: {
-            "field_class": fields.CharField,
-            "widget_class": widgets.Textarea,
-        },
-        SUBTYPE_EMAIL: {
-            "field_class": fields.EmailField,
-            "widget_class": widgets.TextInput,
-        },
-        SUBTYPE_PHONE_NUMBER: {
-            "field_class": fields.CharField,
-            "widget_class": PhoneInput,
-            "validators": [validate_phone_number],
-        },
-        SUBTYPE_INTEGER: {
-            "field_class": fields.IntegerField,
-            "widget_class": widgets.TextInput,
-        },
-        SUBTYPE_FULL_NAME: {
-            "field_class": custom_fields.FullNameField,
-            "widget_class": widgets.TextInput,
-        },
-    }
-
-    textarea_rows = models.PositiveIntegerField(blank=True, null=True)
-
-    def get_implementation(self, widget_attrs=None):
-
-        widget_attrs = widget_attrs or dict()
-
-        subtype_options = TextField.SUBTYPES[self.subtype]
-
+    SUBTYPE_FULL_NAME = "full_name"
+    SUBTYPE_PASSWORD = "password"  # Add this line
+    
+    field_type = Field.TYPE_TEXT
+    
+    def get_implementation(self, widget_attrs={}):
         widget_attrs["data-id"] = self.id
-
-        if self.subtype == TextField.SUBTYPE_TEXTAREA:
-            widget_attrs["rows"] = str(self.textarea_rows if self.textarea_rows else 4)
-
-        widget_class = subtype_options["widget_class"]
-        widget = widget_class(attrs=widget_attrs)
-
-        field_class = subtype_options["field_class"]
-
-        validators = subtype_options.get("validators", [])
-
-        return field_class(
-            label=self.display_name,
-            required=self.required,
-            widget=widget,
-            validators=validators,
-        )
+        
+        if self.subtype == self.SUBTYPE_PASSWORD:
+            widget = widgets.PasswordInput(attrs=widget_attrs)
+        elif self.subtype == self.SUBTYPE_TEXTAREA:
+            widget = widgets.Textarea(attrs=widget_attrs)
+        else:
+            widget = widgets.TextInput(attrs=widget_attrs)
+            
+        return fields.CharField(widget=widget, required=self.required)
 
     def save(self, **kwargs):
         self.content_type = ContentType.objects.get_for_model(type(self))

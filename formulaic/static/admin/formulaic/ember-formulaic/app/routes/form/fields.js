@@ -147,13 +147,13 @@ export default Ember.Route.extend({
         },
 
         createTextField: function(subtype) {
-            if (["text", "textarea", "email", "phone_number", "integer", "full_name"].indexOf(subtype) === -1) {
+            if (["text", "textarea", "email", "phone_number", "integer", "full_name", "password"].indexOf(subtype) === -1) {
                 // Raise exception: field subtype not implemented
                 throw new Error("Formulaic: text field subtype `" + subtype + "` not implemented");
             }
-
+            
             let field = this._createBaseField(subtype);
-
+            
             let textfield = this.store.createRecord('textfield', {
                 display_name: field.get('display_name'),
                 data_name: field.get('data_name'),
@@ -166,9 +166,9 @@ export default Ember.Route.extend({
                 form: field.get('form'),
                 subtype: subtype
             });
-
+            
             field.set('textfield', textfield);
-
+            
             this.openEditField(field);
         },
 

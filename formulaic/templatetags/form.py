@@ -14,6 +14,7 @@ def autocomplete_attribute(name):
         "phone-number": "tel",
         "zip-code": "postal-code",
         "country_other": "country-name",
+        "password": "new-password",
     }
 
     return attributes[name] if name in attributes else "on"
