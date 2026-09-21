@@ -2,7 +2,7 @@
 
 <!-- TODO: temporary; make more modular; DRY -->
 <link type="text/css" media="all" rel="stylesheet" href="{% static 'formulaic/css/bootstrap.min.css' %}"/>
-<div class="bootstrap-gemg-forms">
+<div class="bootstrap-form">
   {% if form.errors.items %}
     <div class="form-errors-summary alert alert-danger" role="alert">
       This form contains {{ form.errors.items|length }}

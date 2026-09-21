@@ -4,9 +4,6 @@ Django Formulaic allows Django Admin users to create custom forms.  The generate
 are rendered using an extension of Django's Form class.  Form submission data is
 collected by the app and accessible via its admin interface.
 
-_The app was originally developed for internal use.  We hope others will find it useful,
-but it definitely lacks polish at this point in its development._
-
 ## Implementation
 
 ### Configuration

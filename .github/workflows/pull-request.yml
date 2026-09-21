@@ -43,12 +43,12 @@ jobs:
         run: uv sync
 
       - name: Check for Modified Python Files
-        run: echo "gemg_py_diff=$(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E "(.py$)" | tr "\n" " ")" >> $GITHUB_ENV
+        run: echo "py_diff=$(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E "(.py$)" | tr "\n" " ")" >> $GITHUB_ENV
 
       - name: Run Black - Confirm files have been formatted using Black
-        if: ${{ env.gemg_py_diff != '' }}
-        run: uv run black ${{env.gemg_py_diff}} --check
+        if: ${{ env.py_diff != '' }}
+        run: uv run black ${{env.py_diff}} --check
 
       - name: Run Python Linter
-        if: ${{ env.gemg_py_diff != '' }}
-        run: uv run flake8 ${{env.gemg_py_diff}} --ignore=E501,F405,W503
+        if: ${{ env.py_diff != '' }}
+        run: uv run flake8 ${{env.py_diff}} --ignore=E501,F405,W503
