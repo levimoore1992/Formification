@@ -9,12 +9,10 @@
 {% endblock %}
 
 {% block extrahead %}
-  <link rel="stylesheet" href="{% static "admin/formulaic/ember-formulaic/dist/assets/vendor.css" %}">
-  <link rel="stylesheet" href="{% static "admin/formulaic/ember-formulaic/dist/assets/ember-formulaic.css" %}">
+  {% vue_formulaic_assets %}
+  <meta name="vue-formulaic/config/environment" content="{{ vue_config }}" />
 
-  <meta name="ember-formulaic/config/environment" content="{{ environment_config }}" />
-
-      <script src="https://cdn.tiny.cloud/1/{% formulaic_tinymce_key %}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+  <script src="https://cdn.tiny.cloud/1/{% formulaic_tinymce_key %}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
   {{ block.super }}
 {% endblock %}
@@ -44,7 +42,4 @@
         <input type="hidden" name="task_data" value='{{ task_data }}'/>
     </form>
   {% endif %}
-
-  <script src="{% static "admin/formulaic/ember-formulaic/dist/assets/vendor.js" %}"></script>
-  <script src="{% static "admin/formulaic/ember-formulaic/dist/assets/ember-formulaic.js" %}"></script>
 {% endblock %}

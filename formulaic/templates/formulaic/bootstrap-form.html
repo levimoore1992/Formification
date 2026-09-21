@@ -52,10 +52,6 @@
       {% endwith %}
     {% endfor %}
 
-    {% if form.privacy_policy %}
-      <div class="form-specific-privacy-policy">{{ form.privacy_policy.text|safe }}</div>
-    {% endif %}
-
     <div class="form-group form-autofill">
       <label class="control-label" for="form-input-autofill">
         <input type="checkbox" id="id_form-input-autofill" name="form-input-autofill" checked> Please save my information for future visits

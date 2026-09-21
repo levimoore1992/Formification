@@ -9,17 +9,18 @@ jobs:
 
     steps:
       - name: 'Checkout Github Action'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: 'Build `docker-compose` Environment'
-        run: |
-          docker-compose up -d
+      - name: 'Install uv'
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
 
-      - name: 'Check Running Containers'
-        run: docker ps -a
+      - name: 'Install Dependencies'
+        run: uv sync
 
       - name: 'Run Python Unit Tests'
-        run: docker exec formification_web_1 python manage.py test
+        run: uv run python manage.py test
 
   run-linter:
     name: Lint Code Base
@@ -28,24 +29,26 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: uv sync
+
       - name: Check for Modified Python Files
         run: echo "gemg_py_diff=$(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E "(.py$)" | tr "\n" " ")" >> $GITHUB_ENV
 
-      - name: Setup Python Linter
-        if: ${{ env.gemg_py_diff != '' }}
-        run: |
-          python3 -m pip install -r requirements.txt
-
       - name: Run Black - Confirm files have been formatted using Black
         if: ${{ env.gemg_py_diff != '' }}
-        run: python3 -m black ${{env.gemg_py_diff}} --check
+        run: uv run black ${{env.gemg_py_diff}} --check
 
       - name: Run Python Linter
         if: ${{ env.gemg_py_diff != '' }}
-        run: python3 -m flake8 ${{env.gemg_py_diff}} --ignore=E501,F405,W503
-
+        run: uv run flake8 ${{env.gemg_py_diff}} --ignore=E501,F405,W503

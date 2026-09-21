@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Formulaic Admin</title>
+  </head>
+  <body>
+    <!--
+      In Django this app mounts inside the existing #formulaic-container div in
+      formulaic/templates/admin/formulaic/form/change_form.html, which injects
+      bootstrap config via:
+        <meta name="vue-formulaic/config/environment" content="{...}">
+      (see README "Integration with Django admin").
+
+      When running `npm run dev`, nothing is injected, so read the fallback
+      form id from the query string: http://localhost:5173/?formId=1
+    -->
+    <div id="formulaic-container"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

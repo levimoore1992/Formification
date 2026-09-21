@@ -23,7 +23,6 @@ class CustomForm(forms.Form):
         widget_attrs = kwargs.pop("widget_attrs", {})
         fields = form.field_set.all()
         self.field_slugs_by_id = {}
-        self.privacy_policy = form.privacy_policy
 
         super(CustomForm, self).__init__(data, *args, **kwargs)
 

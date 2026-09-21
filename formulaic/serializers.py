@@ -163,17 +163,6 @@ class FormSerializer(serializers.ModelSerializer):
             "name",
             "slug",
             "success_message",
-            "privacy_policy",
-        )
-
-
-class PrivacyPolicySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.PrivacyPolicy
-        fields = (
-            "id",
-            "name",
-            "text",
         )
 
 

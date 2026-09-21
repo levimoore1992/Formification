@@ -4,7 +4,6 @@ from formulaic import views
 
 router = routers.SimpleRouter()
 router.register(r"forms", views.FormViewset)
-router.register(r"privacypolicies", views.PrivacyPolicyViewset)
 router.register(r"fields", views.FieldViewset)
 router.register(r"textfields", views.TextFieldViewset)
 router.register(r"choicefields", views.ChoiceFieldViewset)

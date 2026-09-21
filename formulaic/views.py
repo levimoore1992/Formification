@@ -136,14 +136,6 @@ class FormViewset(viewsets.ModelViewSet):
     serializer_class = serializers.FormSerializer
 
 
-class PrivacyPolicyViewset(viewsets.ModelViewSet):
-    permission_classes = (CustomDjangoModelPermissions,)
-
-    queryset = models.PrivacyPolicy.objects.all()
-
-    serializer_class = serializers.PrivacyPolicySerializer
-
-
 class FieldViewset(viewsets.ModelViewSet):
     permission_classes = (CustomDjangoModelPermissions,)
 

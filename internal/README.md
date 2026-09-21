@@ -1,12 +1,15 @@
 # Formulaic - Example Project
 
 ```shell
-# Build and run web server locally
-docker-compose build
-docker-compose up
+# Create a virtualenv and install dependencies (uses uv)
+uv sync
+
+# Apply migrations to the sqlite database and run the server
+uv run python manage.py migrate
+uv run python manage.py runserver 0.0.0.0:8000
 ```
 
 ```shell
 # Create superuser for admin access
-docker-compose run --rm web python manage.py createsuperuser
+uv run python manage.py createsuperuser
 ```

@@ -178,7 +178,10 @@ We would like to phase these out or make them optional
 ### JavaScript
 
 - **jQuery** must be included (for now) for the public-facing forms.
-- The admin interface was built mostly using **EmberJS**.  You'll find setup instructions in the `README.md` at the root of that project: `/formulaic/static/admin/ember-formulaic`. This should only be important if you wish to make changes to the admin.
+- The admin interface is a **Vue 3** SPA. Build/run instructions are in the
+  `README.md` at the root of that project:
+  `/formulaic/static/admin/formulaic/vue-formulaic`. This is only important if
+  you wish to make changes to the admin.
 
 ## License
 

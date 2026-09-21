@@ -1,6 +1,5 @@
 import json
 
-from ckeditor.fields import RichTextField
 import django
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
@@ -14,7 +13,7 @@ from six import iteritems, u
 from formulaic import fields as custom_fields
 from formulaic.auto_populate import attempt_kv_auto_populate
 from formulaic.signals import submission_complete
-from formulaic.validators import validate_mixed_content, validate_phone_number
+from formulaic.validators import validate_phone_number
 from formulaic.widgets import PhoneInput
 from django.core.exceptions import ValidationError
 
@@ -24,9 +23,6 @@ class Form(models.Model):
     name = models.CharField(max_length=500)
     slug = models.SlugField(max_length=200)
     success_message = models.TextField(null=True, blank=True)
-    privacy_policy = models.ForeignKey(
-        "PrivacyPolicy", on_delete=models.PROTECT, null=True, blank=True
-    )
 
     archived = models.BooleanField(default=False)
 
@@ -115,28 +111,6 @@ class Form(models.Model):
             "archived",
             "name",
         )
-
-
-class PrivacyPolicy(models.Model):
-    """
-    Provides an editable list of privacy policies which can be selected
-    on any Formulaic Form.  Ideally, it will act to override the privacy
-    policy on the page the form is rendered on.
-    """
-
-    name = models.CharField(max_length=250)
-    text = RichTextField(
-        config_name="very_basic",
-        validators=[
-            validate_mixed_content,
-        ],
-    )
-
-    class Meta:
-        verbose_name_plural = "Privacy policies"
-
-    def __str__(self):
-        return self.name
 
 
 class OptionList(models.Model):
@@ -285,7 +259,9 @@ class Field(models.Model):
         return self.data_name
 
     def save(self, **kwargs):
-        # TODO: temporary; testing Ember
+        # Keep the polymorphic bookkeeping in sync on every write: the
+        # content_type maps the base row to its subclass, and model_class
+        # names that subclass for the API.
         self.content_type = ContentType.objects.get_for_model(type(self))
         self.model_class = self.__class__.__name__.lower()
 

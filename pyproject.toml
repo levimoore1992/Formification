@@ -1,0 +1,65 @@
+[project]
+name = "formification"
+version = "1.2.0"
+description = "A Django app for building custom web forms and collecting submissions."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Levi Moore", email = "levimoore1992@gmail.com" },
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dependencies = [
+    "Django==4.1.2",
+    "django-admin-ordering==0.13.1",
+    "django-ckeditor==6.4.2",
+    "django-filter==2.4.0",
+    "djangorestframework==3.13.1",
+    "nameparser==1.1.2",
+    "pyzipcode==2.0.0",
+    "us==0.9.1",
+    "beautifulsoup4==4.4.1",
+    "tzlocal==1.2.2",
+    "phonenumbers==8.12.50",
+    "six",
+    "setuptools<81",
+]
+
+[project.urls]
+Homepage = "https://github.com/levimoore1992/formification"
+
+[dependency-groups]
+dev = [
+    "black==22.10.0",
+    "flake8==5.0.4",
+]
+
+[tool.uv.extra-build-dependencies]
+us = ["setuptools<81"]
+pyzipcode = ["wheel"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["formulaic*"]
+
+[tool.setuptools.package-data]
+formulaic = ["templates/**/*.html", "static/**/*"]

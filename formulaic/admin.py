@@ -2,7 +2,6 @@ import json
 from functools import update_wrapper
 
 from admin_ordering.admin import OrderableAdmin
-from django import forms
 from django.urls import re_path
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
@@ -93,21 +92,10 @@ class FormAdmin(admin.ModelAdmin):
 
     @property
     def media(self):
-        super_media = super(FormAdmin, self).media
-        form_media = forms.Media(
-            css={
-                "all": (
-                    "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css",
-                    "admin/formulaic/css/form.css",
-                )
-            },
-            js=(
-                "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js",
-                "admin/formulaic/js/form.js",
-            ),
-        )
-
-        return super_media + form_media
+        # The form change page is a single-page Vue app; nothing extra beyond
+        # the admin defaults is needed. (The old pre-SPA "edit fields" dialog
+        # assets + jQuery UI CDN were removed with the rest of the legacy admin.)
+        return super(FormAdmin, self).media
 
     def get_urls(self):
         def wrap(view):
@@ -130,7 +118,7 @@ class FormAdmin(admin.ModelAdmin):
                 wrap(self.unarchive_view),
                 name="formulaic_form_unarchive",
             ),
-            # pattern eats remaining URL path used by `ember-formulaic`
+            # pattern eats remaining URL path used by the admin SPA routing
             re_path(r"^([0-9]+)/.+$", wrap(self.changeform_view)),
         ] + url_patterns
 
@@ -152,34 +140,6 @@ class FormAdmin(admin.ModelAdmin):
         if form is None:
             raise Http404("Form does not exist")
 
-        environment_config = {
-            "modulePrefix": "ember-formulaic",
-            "environment": "production",
-            "rootURL": self.root_url,
-            "locationType": "auto",
-            "tinyMCE": {"version": 4, "load": True},  # default 4.4,
-            "EmberENV": {
-                "FEATURES": {
-                    # Here you can enable experimental features on an ember canary build
-                    # e.g. 'with-controller': true
-                },
-                "EXTEND_PROTOTYPES": {
-                    # Prevent Ember Data from overriding Date.parse.
-                    "Date": False
-                },
-            },
-            "APP": {
-                # Here you can pass flags/options to your application instance
-                # when it is created
-                "API_HOST": "",
-                "API_NAMESPACE": "formulaic/api",
-                "name": "ember-formulaic",
-                "version": "0.0.0+a30ae212",
-                "API_ADD_TRAILING_SLASHES": True,
-            },
-            "exportApplicationGlobal": True,
-        }
-
         extra_context = extra_context or {}
         extra_context.update(
             {
@@ -191,7 +151,12 @@ class FormAdmin(admin.ModelAdmin):
                 "original": form,
                 "task_data": json.dumps({"form_pk": object_id}),
                 "media": self.media,
-                "environment_config": json.dumps(environment_config),
+                # Vue admin bootstrap (see boot.js / README "Integration with
+                # Django admin"): injected as a JSON meta tag the SPA reads at
+                # import time.
+                "vue_config": json.dumps(
+                    {"formId": object_id, "apiBase": "/formulaic/api"}
+                ),
             }
         )
 
@@ -314,17 +279,5 @@ class OptionListAdmin(admin.ModelAdmin):
         return super(OptionListAdmin, self).get_form(request, obj=obj, **kwargs)
 
 
-class PrivacyPolicyAdmin(admin.ModelAdmin):
-    model = formulaic_models.PrivacyPolicy
-
-    fields = (
-        "name",
-        "text",
-    )
-
-    search_fields = ("name",)
-
-
 admin.site.register(formulaic_models.Form, FormAdmin)
 admin.site.register(formulaic_models.OptionList, OptionListAdmin)
-admin.site.register(formulaic_models.PrivacyPolicy, PrivacyPolicyAdmin)
