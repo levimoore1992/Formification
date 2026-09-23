@@ -7,7 +7,9 @@ from setuptools.command.build_py import build_py
 
 class BuildWithVueAssets(build_py):
     def run(self):
-        relative = Path("formification/static/admin/formification/vue-formification/dist")
+        relative = Path(
+            "formification/static/admin/formification/vue-formification/dist"
+        )
         assets = Path(__file__).parent / relative / "assets"
         if not list(assets.glob("index-*.js")) or not list(assets.glob("index-*.css")):
             raise RuntimeError(

@@ -255,7 +255,9 @@ class OptionGroupInline(OrderableAdmin, admin.TabularInline):
 
         if db_field.name == "options":
             optionlist = request.formification_optionlist
-            kwargs["queryset"] = formification_models.Option.objects.filter(list=optionlist)
+            kwargs["queryset"] = formification_models.Option.objects.filter(
+                list=optionlist
+            )
 
         return super(OptionGroupInline, self).formfield_for_manytomany(
             db_field, request=request, **kwargs

@@ -157,6 +157,7 @@ make setup   # uv sync
 make migrate # apply migrations
 make seed    # load mock demo data
 make run     # runserver 0.0.0.0:8000
+make lint    # black --check + flake8 (mirrors CI)
 ```
 
 ### Demo data

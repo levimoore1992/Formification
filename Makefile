@@ -1,4 +1,11 @@
-.PHONY: setup migrate seed run
+.PHONY: setup migrate seed run lint
+
+PY_SOURCES := $(shell find . -name '*.py' \
+	-not -path './.venv/*' \
+	-not -path './formification.egg-info/*' \
+	-not -path '*/node_modules/*' \
+	-not -path '*/dist/*' \
+	-not -path './db.sqlite3')
 
 setup: ## Install dependencies with uv
 	uv sync
@@ -11,3 +18,7 @@ seed: ## Load mock demo data (users, forms, fields, rules, submissions)
 
 run: ## Run the demo server
 	uv run python manage.py runserver 0.0.0.0:8000
+
+lint: ## Format with black and lint with flake8 (mirrors the CI checks)
+	uv run black $(PY_SOURCES)
+	uv run flake8 $(PY_SOURCES) --ignore=E501,F405,W503

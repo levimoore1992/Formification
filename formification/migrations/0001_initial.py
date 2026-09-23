@@ -171,7 +171,8 @@ class Migration(migrations.Migration):
                 (
                     "form",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="formification.Form"
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="formification.Form",
                     ),
                 ),
             ],
@@ -210,7 +211,8 @@ class Migration(migrations.Migration):
                 (
                     "form",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT, to="formification.Form"
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="formification.Form",
                     ),
                 ),
             ],
@@ -425,13 +427,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="optiongroup",
             name="options",
-            field=models.ManyToManyField(related_name="groups", to="formification.Option"),
+            field=models.ManyToManyField(
+                related_name="groups", to="formification.Option"
+            ),
         ),
         migrations.AddField(
             model_name="option",
             name="list",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="formification.OptionList"
+                on_delete=django.db.models.deletion.CASCADE,
+                to="formification.OptionList",
             ),
         ),
         migrations.AddField(

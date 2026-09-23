@@ -36,7 +36,9 @@ def vue_formification_assets():
             "Missing Formification Vue assets; run npm ci and npm run build in vue-formification before packaging."
         )
 
-    css = static("admin/formification/vue-formification/dist/assets/" + css_files[0].name)
+    css = static(
+        "admin/formification/vue-formification/dist/assets/" + css_files[0].name
+    )
     js = static("admin/formification/vue-formification/dist/assets/" + js_files[0].name)
 
     return mark_safe(
