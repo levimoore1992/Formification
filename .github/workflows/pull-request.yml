@@ -6,6 +6,15 @@ jobs:
 
   run-tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - python: "3.11"
+            django: "Django~=4.2.0"
+          - python: "3.11"
+            django: "Django~=5.2.0"
+          - python: "3.14"
+            django: "Django~=6.0"
 
     steps:
       - name: 'Checkout Github Action'
@@ -14,13 +23,47 @@ jobs:
       - name: 'Install uv'
         uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python }}
 
       - name: 'Install Dependencies'
-        run: uv sync
+        run: uv sync --python '${{ matrix.python }}'
+
+      - name: Select Django version
+        run: uv pip install -e . "${{ matrix.django }}"
 
       - name: 'Run Python Unit Tests'
-        run: uv run python manage.py test
+        run: uv run --no-sync python manage.py test
+
+      - name: Check migration state
+        run: uv run --no-sync python manage.py makemigrations --check --dry-run
+
+  vue-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci && npm test && npm run build
+        working-directory: formification/static/admin/formification/vue-formification
+      - name: Verify committed production assets
+        run: |
+          test -z "$(git status --porcelain -- formification/static/admin/formification/vue-formification/dist)"
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build
+
+  form-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci && npm run build
+        working-directory: formification/static/formification/vite-formification
+      - name: Verify committed production assets
+        run: |
+          test -z "$(git status --porcelain -- formification/static/formification/vite-formification/dist)"
 
   run-linter:
     name: Lint Code Base

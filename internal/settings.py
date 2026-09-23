@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_filters",
     "rest_framework",
-    "formulaic",
+    "formification",
     "admin_ordering",
 ]
 
@@ -59,7 +59,7 @@ MIDDLEWARE = [
 # Django 1.8 compatibility.
 MIDDLEWARE_CLASSES = MIDDLEWARE[:]
 
-ADMIN_NAV_MANAGED_APPS = "formulaic"
+ADMIN_NAV_MANAGED_APPS = "formification"
 
 ROOT_URLCONF = "internal.urls"
 
@@ -132,8 +132,8 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 BASE_DIR = Path(__file__).resolve().parent
-FORMULAIC_EXPORT_STORAGE_LOCATION = BASE_DIR / "formulaic"
+FORMIFICATION_EXPORT_STORAGE_LOCATION = BASE_DIR / "formification"
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-FORMULAIC_TINYMCE_KEY = ""
+FORMIFICATION_TINYMCE_KEY = ""

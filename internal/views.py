@@ -1,75 +1,38 @@
-from django.shortcuts import redirect, render
-from formulaic.forms import CustomForm
-from formulaic.models import Form, TextField
+from django.shortcuts import get_object_or_404, redirect, render
+from formification.forms import CustomForm
+from formification.models import Form
+
+DEMO_FORM_SLUG = "demo-form"
 
 
-def test_formulaic_form(request):
-    # create form and add text field (if not already created)
-    formulaic_form, created = Form.objects.get_or_create(
-        name="Test Form",
-        slug="robot-form",
-        archived=False,
-    )
-
-    TextField.objects.get_or_create(
-        name="Text Field 1",
-        slug="text-field-1",
-        required=True,
-        help_text=None,
-        position=0,
-        form_id=formulaic_form.id,
-        enabled=0,
-        css_class=None,
-        subtype=TextField.SUBTYPE_TEXT,
-    )
-
-    TextField.objects.get_or_create(
-        name="Phone Number",
-        slug="phone-number",
-        required=True,
-        help_text=None,
-        position=1,
-        form_id=formulaic_form.id,
-        enabled=0,
-        css_class=None,
-        subtype=TextField.SUBTYPE_PHONE_NUMBER,
-    )
+def form_page(request):
+    formification_form = get_object_or_404(Form, slug=DEMO_FORM_SLUG)
 
     if request.method == "POST":
         form = CustomForm(
             request.POST,
             request=request,
-            instance_id="form-page-a",
-            form=formulaic_form,
+            instance_id="demo-page",
+            form=formification_form,
         )
 
         if form.is_valid():
-            formulaic_form.create_submission(
+            formification_form.create_submission(
                 form.cleaned_data,
                 source=form.instance_id,
-                metadata={
-                    "extra-data-1": "some data",
-                    "extra-data-2": "more data",
-                },
             )
 
             return redirect("form-complete")
 
     else:
         form = CustomForm(
-            request=request, instance_id="form-page-a", form=formulaic_form
+            request=request, instance_id="demo-page", form=formification_form
         )
 
     return render(request, "form.html", {"form": form})
 
 
-def test_formulaic_form_complete(request):
-    formulaic_form = Form.objects.get(slug="robot-form")
+def form_complete(request):
+    formification_form = get_object_or_404(Form, slug=DEMO_FORM_SLUG)
 
-    return render(
-        request,
-        "form-complete.html",
-        {
-            "form": formulaic_form,
-        },
-    )
+    return render(request, "form-complete.html", {"form": formification_form})

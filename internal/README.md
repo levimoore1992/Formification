@@ -1,4 +1,4 @@
-# Formulaic - Example Project
+# Formification - Example Project
 
 ```shell
 # Create a virtualenv and install dependencies (uses uv)

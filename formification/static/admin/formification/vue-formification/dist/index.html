@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Formification Admin</title>
+    <script type="module" crossorigin src="./assets/index-Dy4U1CeE.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-ZnCY6FKb.css">
+  </head>
+  <body>
+    <!--
+      In Django this app mounts inside the existing #formification-container div in
+      formification/templates/admin/formification/form/change_form.html, which injects
+      bootstrap config via:
+        <meta name="vue-formification/config/environment" content="{...}">
+      (see README "Integration with Django admin").
+
+      When running `npm run dev`, nothing is injected, so read the fallback
+      form id from the query string: http://localhost:5173/?formId=1
+    -->
+    <div id="formification-container"></div>
+  </body>
+</html>

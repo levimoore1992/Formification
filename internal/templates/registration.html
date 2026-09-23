@@ -22,15 +22,15 @@
               {% for field in form.visible_fields %}
                 {% with field_type=field|widget_type %}
             
-                <div class="forms-field field-wrapper form-group {{ field.field.widget|formulaic_field_classes }}
-                            {% if field.errors %} field-error formulaic-error {% endif %}">
+                <div class="forms-field field-wrapper form-group {{ field.field.widget|formification_field_classes }}
+                            {% if field.errors %} field-error formification-error {% endif %}">
                   <label class="forms-field-label" for="{{ field.id_for_label }}">
                     {{ field.label|safe }} {% if field.field.required %}<span class="forms-required-label">*</span>{% endif %}
                   </label>
             
                   {% if field_type == "textinput" or field_type == "select" or field_type == "selectmultiple" or field_type == "textarea" %}
             
-                    {{ field|formulaic_extra_attributes|safe }}
+                    {{ field|formification_extra_attributes|safe }}
             
                   {% elif field_type == "checkboxselectmultiple" %}
             
@@ -42,7 +42,7 @@
             
                   {% else %}
             
-                    {{ field|formulaic_extra_attributes|safe }}
+                    {{ field|formification_extra_attributes|safe }}
             
                   {% endif %}
             
@@ -70,7 +70,6 @@
   (function() {
     var instanceId = "{{ form.instance_id }}";
     var rulesData = {{ form.rules_json|safe }};
-    var sharedSiteUrl = "";
-    Formulaic.forms.add(instanceId, rulesData, sharedSiteUrl);
+    Formification.forms.add(instanceId, rulesData);
   })();
 </script>

@@ -1,9 +1,9 @@
 [project]
 name = "formification"
-version = "1.2.0"
+version = "1.2.1"
 description = "A Django app for building custom web forms and collecting submissions."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
     { name = "Levi Moore", email = "levimoore1992@gmail.com" },
@@ -11,29 +11,31 @@ authors = [
 classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
 dependencies = [
-    "Django==4.1.2",
-    "django-admin-ordering==0.13.1",
-    "django-ckeditor==6.4.2",
-    "django-filter==2.4.0",
-    "djangorestframework==3.13.1",
-    "nameparser==1.1.2",
-    "pyzipcode==2.0.0",
-    "us==0.9.1",
-    "beautifulsoup4==4.4.1",
-    "tzlocal==1.2.2",
-    "phonenumbers==8.12.50",
+    "Django>=4.2,<7",
+    "django-admin-ordering>=0.20,<1",
+    "django-ckeditor>=6.7,<7",
+    "django-filter>=24.3",
+    "djangorestframework>=3.15.2,<4",
+    "nameparser>=1.1.2,<3",
+    "pyzipcode>=2,<4",
+    "us>=3,<4",
+    "beautifulsoup4>=4.12,<5",
+    "tzlocal>=5,<6",
+    "phonenumbers>=8.12.50,<10",
     "six",
+    "pytz",
     "setuptools<81",
 ]
 
@@ -59,7 +61,7 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["formulaic*"]
+include = ["formification*"]
 
 [tool.setuptools.package-data]
-formulaic = ["templates/**/*.html", "static/**/*"]
+formification = ["templates/**/*.html", "static/formification/**/*", "static/admin/formification/vue-formification/dist/assets/*"]

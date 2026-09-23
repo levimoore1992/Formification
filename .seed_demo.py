@@ -1,8 +1,8 @@
-"""Seed demo data for the local formulaic demo (safe to re-run).
+"""Seed demo data for the local formification demo (safe to re-run).
 Creates: demo superuser, option lists/groups, a rich Demo Form with mixed
 field types + rules + submissions, and the public robot-form."""
 from django.contrib.auth.models import User
-from formulaic.models import (
+from formification.models import (
     BooleanField,
     ChoiceField,
     Form,
@@ -17,7 +17,7 @@ from formulaic.models import (
 )
 
 # ------------------------------------------------------------------ superuser
-for uname in ("demo", "levimoore"):
+for uname in ("demo",):
     u, created = User.objects.get_or_create(
         username=uname, defaults={"email": uname + "@example.com"}
     )
@@ -248,6 +248,10 @@ lead = make(
 )
 
 # -------------------------------------------------------------------- rules
+# The demo form reads like a small CRM lead-capture form: answers cascade, so
+# you only ever see the fields that matter. Tune all of this in the admin's
+# Rules tab.
+Rule.objects.filter(form=demo_form).delete()
 
 
 def add_rule(operator, conditions, results):
@@ -262,16 +266,38 @@ def add_rule(operator, conditions, results):
     return rule
 
 
-other_greens = greens
+contact_email = methods_list.option_set.get(name="Email").id
+contact_phone = methods_list.option_set.get(name="Phone").id
+
+# Favorite Color picks which palette Shade pulls from
 add_rule(
     "and",
-    [(fav_color, "is", "other")],
-    [("change-option-group", shade, other_greens)],
+    [(fav_color, "is", red.id)],
+    [("change-option-group", shade, primary)],
 )
 add_rule(
     "and",
-    [(newsletter, "is", None)],
-    [("show", hobbies, None)],
+    [(fav_color, "is", other.id)],
+    [("change-option-group", shade, greens)],
+)
+
+# One preferred channel is enough; don't ask for the other
+add_rule(
+    "and",
+    [(contact, "is", contact_email)],
+    [("hide", phone, None)],
+)
+add_rule(
+    "and",
+    [(contact, "is", contact_phone)],
+    [("hide", email, None)],
+)
+
+# Only collect interests if they've opted into updates
+add_rule(
+    "and",
+    [(newsletter, "is_not", None)],
+    [("hide", hobbies, None)],
 )
 
 # --------------------------------------------------------------- submissions
