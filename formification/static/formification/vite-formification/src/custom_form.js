@@ -62,10 +62,36 @@ window.Formification = (function($) {
     };
 
     RuleCondition.prototype.isMet = function() {
-        if (this.operator === 'is') {
-            return this.field.hasValue(this.value);
-        } else {
-            return !this.field.hasValue(this.value);
+        if (!this.field) return false;
+        var field = this.field;
+        var actual = field.getValue();
+        var expected = this.value;
+        switch (this.operator) {
+            case 'is': return field.hasValue(expected);
+            case 'is_not': return !field.hasValue(expected);
+            case 'any_selected':
+            case 'all_selected':
+                var values = Array.isArray(expected) ? expected : [expected];
+                var matches = function(value) { return field.hasValue(value); };
+                return this.operator === 'any_selected' ? values.some(matches) : values.every(matches);
+            case 'greater_than':
+            case 'less_than':
+                if (actual == null || String(actual).trim() === '' || expected == null || String(expected).trim() === '') return false;
+                var left = Number(actual), right = Number(expected);
+                if (!Number.isFinite(left) || !Number.isFinite(right)) return false;
+                return this.operator === 'greater_than' ? left > right : left < right;
+            case 'contains':
+            case 'does_not_contain':
+            case 'begins_with':
+            case 'ends_with':
+                if (actual == null || expected == null) return false;
+                actual = String(actual);
+                expected = String(expected);
+                if (this.operator === 'contains') return actual.includes(expected);
+                if (this.operator === 'does_not_contain') return !actual.includes(expected);
+                if (this.operator === 'begins_with') return actual.startsWith(expected);
+                return actual.endsWith(expected);
+            default: return false;
         }
     };
 
@@ -292,7 +318,7 @@ window.Formification = (function($) {
             var fieldValue = this.getValue();
 
             if (fieldValue instanceof Array) {
-                return ($.inArray(value, fieldValue) > -1);
+                return fieldValue.some(function(item) { return String(item) === String(value); });
             } else {
                 return fieldValue == value;
             }

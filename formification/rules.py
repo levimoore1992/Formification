@@ -1,3 +1,5 @@
+import math
+
 from six import iteritems
 
 from formification import exceptions
@@ -142,8 +144,39 @@ class RuleCondition(object):
     def is_met(self):
         if self.operator == "is":
             return self.field.has_value(self.value)
-        else:
+        if self.operator == "is_not":
             return not self.field.has_value(self.value)
+        if self.operator in ("any_selected", "all_selected"):
+            values = self.value if isinstance(self.value, list) else [self.value]
+            matches = (self.field.has_value(value) for value in values)
+            return any(matches) if self.operator == "any_selected" else all(matches)
+
+        actual, expected = self.field.value, self.value
+        if actual is None or expected is None:
+            return False
+        if self.operator in ("greater_than", "less_than"):
+            try:
+                actual, expected = float(actual), float(expected)
+            except (TypeError, ValueError):
+                return False
+            if not math.isfinite(actual) or not math.isfinite(expected):
+                return False
+            return (
+                actual > expected
+                if self.operator == "greater_than"
+                else actual < expected
+            )
+
+        actual, expected = str(actual), str(expected)
+        if self.operator == "contains":
+            return expected in actual
+        if self.operator == "does_not_contain":
+            return expected not in actual
+        if self.operator == "begins_with":
+            return actual.startswith(expected)
+        if self.operator == "ends_with":
+            return actual.endswith(expected)
+        return False
 
 
 class RuleResult(object):

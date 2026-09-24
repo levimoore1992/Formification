@@ -166,9 +166,16 @@ make e2e     # real-browser end-to-end tests (pytest-playwright)
 The `internal/e2e/` suite combines `pytest-playwright` with `pytest-django`.
 Django manages an isolated test database and a live HTTP server on an available
 port, including static files and automatic shutdown. Each test creates its form
-and rules using factory_boy factories, and Playwright checks rendering,
-conditional rules, and a real submission
-with database verification. The development `db.sqlite3` is never used.
+and rules using factory_boy factories. Coverage includes conditional required
+fields, clearing hidden values, option-group switching, AND/OR rules and rule
+precedence, text/numeric/multi-select comparisons, and mobile submission. A
+separate admin test creates fields and rules through the Vue editor, reloads and
+edits them, then submits the public form. Submissions are verified in the test
+database; the development `db.sqlite3` is never used.
+
+The editor currently offers `is` and `is_not`. Additional model/API operators
+(`contains`, `does_not_contain`, `begins_with`, `ends_with`, `greater_than`,
+`less_than`, `any_selected`, and `all_selected`) are exercised with factory data.
 
 ```shell
 make e2e-setup  # one-time: install Playwright's chromium
