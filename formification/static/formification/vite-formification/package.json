@@ -1,0 +1,20 @@
+{
+  "name": "vite-formification",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Vite build for the public-facing Formification form assets.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "bootstrap": "^3.4.1",
+    "intl-tel-input": "^29.2.3",
+    "jquery": "^2.2.4"
+  },
+  "devDependencies": {
+    "vite": "^6.0.7"
+  }
+}

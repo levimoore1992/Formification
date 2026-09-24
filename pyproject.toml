@@ -1,0 +1,73 @@
+[project]
+name = "formification"
+version = "1.2.1"
+description = "A Django app for building custom web forms and collecting submissions."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Formification Contributors" },
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dependencies = [
+    "Django>=4.2,<7",
+    "django-admin-ordering>=0.20,<1",
+    "django-ckeditor>=6.7,<7",
+    "django-filter>=24.3",
+    "djangorestframework>=3.15.2,<4",
+    "nameparser>=1.1.2,<3",
+    "pyzipcode>=2,<4",
+    "us>=3,<4",
+    "beautifulsoup4>=4.12,<5",
+    "tzlocal>=5,<6",
+    "phonenumbers>=8.12.50,<10",
+    "six",
+    "pytz",
+    "setuptools<81",
+]
+
+[dependency-groups]
+dev = [
+    "black==22.10.0",
+    "factory-boy>=3.3.3",
+    "flake8==5.0.4",
+    "pytest>=9.1.1",
+    "pytest-django>=4.14.0",
+    "pytest-playwright>=0.9.0",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "internal.settings"
+pythonpath = ["."]
+testpaths = ["internal/e2e"]
+
+[tool.uv.extra-build-dependencies]
+us = ["setuptools<81"]
+pyzipcode = ["wheel"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["formification*"]
+
+[tool.setuptools.package-data]
+formification = ["templates/**/*.html", "static/formification/**/*", "static/admin/formification/vue-formification/dist/assets/*"]

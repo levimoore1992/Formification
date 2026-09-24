@@ -1,0 +1,68 @@
+/* Formification's Vue screens use the same visual vocabulary as Django admin. */
+
+#formification-container {
+  --f-ink: #333333;
+  --f-muted: #666666;
+  --f-soft: #888888;
+  --f-faint: #a6a6a6;
+  --f-line: #dddddd;
+  --f-line-strong: #bbbbbb;
+  --f-canvas: #f8f8f8;
+  --f-surface: #ffffff;
+  --f-accent: #417690;
+  --f-accent-deep: #205067;
+  --f-accent-bright: #79aec8;
+  --f-accent-tint: #edf4f7;
+  --f-danger: #ba2121;
+  --f-danger-deep: #8f1b1b;
+  --f-danger-tint: #fff1f1;
+  --f-warning: #b07800;
+  --f-warning-deep: #7b5400;
+  --f-warning-tint: #fff8e8;
+  --f-success: #2b6f46;
+  --f-success-tint: #edf7f0;
+  --f-focus-ring: rgba(65, 118, 144, 0.22);
+  --f-radius: 4px;
+  --f-radius-sm: 3px;
+  --f-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --f-font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --f-font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --f-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  color: var(--f-ink);
+  font-family: var(--f-font-ui);
+}
+
+#formification-container *,
+#formification-container *::before,
+#formification-container *::after {
+  box-sizing: border-box;
+}
+
+#formification-container button,
+#formification-container input,
+#formification-container select,
+#formification-container textarea {
+  font: inherit;
+}
+
+#formification-container .screen-reader-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #formification-container *,
+  #formification-container *::before,
+  #formification-container *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,12 @@
+include README.md
+recursive-include formification/templates *.html
+recursive-include formification/static/formification *
+prune formification/static/formification/vite-formification/node_modules
+recursive-include formification/static/admin/formification/vue-formification/dist *
+prune formification/static/admin/formification/vue-formification/node_modules
+recursive-include formification/static/admin/formification/vue-formification/src *.js *.vue
+include formification/static/admin/formification/vue-formification/package*.json
+include formification/static/admin/formification/vue-formification/vite.config.js
+recursive-include formification/static/formification/vite-formification/src *.js
+include formification/static/formification/vite-formification/package*.json
+include formification/static/formification/vite-formification/vite.config.js

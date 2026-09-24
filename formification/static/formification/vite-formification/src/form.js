@@ -1,0 +1,5 @@
+import './globals.js'
+import './phoneNumber.js'
+import './custom_form.js'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'intl-tel-input/dist/css/intlTelInput.css'
