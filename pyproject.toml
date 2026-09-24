@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "Levi Moore", email = "levimoore1992@gmail.com" },
+    { name = "Formification Contributors" },
 ]
 classifiers = [
     "Environment :: Web Environment",
@@ -39,14 +39,20 @@ dependencies = [
     "setuptools<81",
 ]
 
-[project.urls]
-Homepage = "https://github.com/levimoore1992/formification"
-
 [dependency-groups]
 dev = [
     "black==22.10.0",
+    "factory-boy>=3.3.3",
     "flake8==5.0.4",
+    "pytest>=9.1.1",
+    "pytest-django>=4.14.0",
+    "pytest-playwright>=0.9.0",
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "internal.settings"
+pythonpath = ["."]
+testpaths = ["internal/e2e"]
 
 [tool.uv.extra-build-dependencies]
 us = ["setuptools<81"]

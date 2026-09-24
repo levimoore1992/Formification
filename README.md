@@ -158,7 +158,25 @@ make migrate # apply migrations
 make seed    # load mock demo data
 make run     # runserver 0.0.0.0:8000
 make lint    # black --check + flake8 (mirrors CI)
+make e2e     # real-browser end-to-end tests (pytest-playwright)
 ```
+
+### End-to-end tests
+
+The `internal/e2e/` suite combines `pytest-playwright` with `pytest-django`.
+Django manages an isolated test database and a live HTTP server on an available
+port, including static files and automatic shutdown. Each test creates its form
+and rules using factory_boy factories, and Playwright checks rendering,
+conditional rules, and a real submission
+with database verification. The development `db.sqlite3` is never used.
+
+```shell
+make e2e-setup  # one-time: install Playwright's chromium
+make e2e        # run the suite
+```
+
+Install development dependencies with `uv sync`. Standard Playwright options
+work too, for example `uv run pytest --headed --tracing retain-on-failure`.
 
 ### Demo data
 

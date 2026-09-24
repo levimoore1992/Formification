@@ -368,6 +368,6 @@ submit(
 )
 
 print(
-    "SEED OK: demo + levimoore password=demo1234; demo-form id=%s; robot-form id=%s"
+    "SEED OK: demo password=demo1234; demo-form id=%s; robot-form id=%s"
     % (demo_form.id, robot_form.id)
 )

@@ -22,3 +22,11 @@ run: ## Run the demo server
 lint: ## Format with black and lint with flake8 (mirrors the CI checks)
 	uv run black $(PY_SOURCES)
 	uv run flake8 $(PY_SOURCES) --ignore=E501,F405,W503
+
+.PHONY: e2e e2e-setup
+
+e2e-setup: ## Install Playwright's chromium (once)
+	uv run playwright install chromium
+
+e2e: ## Run browser tests against Django's isolated test database
+	uv run pytest internal/e2e

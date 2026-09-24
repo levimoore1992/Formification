@@ -12,3 +12,8 @@ db.sqlite3
 .idea/
 ./build
 .venv
+
+# Playwright failure artifacts
+test-results/
+# Scratch database left by the previous E2E runner
+internal/e2e/e2e.sqlite3
