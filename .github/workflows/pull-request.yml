@@ -53,7 +53,7 @@ jobs:
         run: uv sync
 
       - name: 'Install Playwright system dependencies'
-        run: sudo uv run --no-sync playwright install-deps chromium
+        run: sudo "$HOME/.local/bin/uv" run --no-sync playwright install-deps chromium
 
       - name: 'Install Chromium'
         run: uv run --no-sync playwright install chromium
