@@ -319,6 +319,66 @@ wheels = [
 ]
 
 [[package]]
+name = "django-formification"
+version = "1.2.1"
+source = { editable = "." }
+dependencies = [
+    { name = "beautifulsoup4" },
+    { name = "django", version = "5.2.17", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "django", version = "6.0.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "django-admin-ordering" },
+    { name = "django-ckeditor" },
+    { name = "django-filter" },
+    { name = "djangorestframework" },
+    { name = "nameparser" },
+    { name = "phonenumbers" },
+    { name = "pytz" },
+    { name = "pyzipcode" },
+    { name = "setuptools" },
+    { name = "six" },
+    { name = "tzlocal" },
+    { name = "us" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "black" },
+    { name = "factory-boy" },
+    { name = "flake8" },
+    { name = "pytest" },
+    { name = "pytest-django" },
+    { name = "pytest-playwright" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "beautifulsoup4", specifier = ">=4.12,<5" },
+    { name = "django", specifier = ">=4.2,<7" },
+    { name = "django-admin-ordering", specifier = ">=0.20,<1" },
+    { name = "django-ckeditor", specifier = ">=6.7,<7" },
+    { name = "django-filter", specifier = ">=24.3" },
+    { name = "djangorestframework", specifier = ">=3.15.2,<4" },
+    { name = "nameparser", specifier = ">=1.1.2,<3" },
+    { name = "phonenumbers", specifier = ">=8.12.50,<10" },
+    { name = "pytz" },
+    { name = "pyzipcode", specifier = ">=2,<4" },
+    { name = "setuptools", specifier = "<81" },
+    { name = "six" },
+    { name = "tzlocal", specifier = ">=5,<6" },
+    { name = "us", specifier = ">=3,<4" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black", specifier = "==22.10.0" },
+    { name = "factory-boy", specifier = ">=3.3.3" },
+    { name = "flake8", specifier = "==5.0.4" },
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-django", specifier = ">=4.14.0" },
+    { name = "pytest-playwright", specifier = ">=0.9.0" },
+]
+
+[[package]]
 name = "django-js-asset"
 version = "4.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -392,66 +452,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ad/00/9808c62b2d529cefc69ce4e4a1ea42c0f855effa55817b7327ec5b75e60a/flake8-5.0.4.tar.gz", hash = "sha256:6fbe320aad8d6b95cec8b8e47bc933004678dc63095be98528b7bdd2a9f510db", size = 145862, upload-time = "2022-08-03T23:21:27.108Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cf/a0/b881b63a17a59d9d07f5c0cc91a29182c8e8a9aa2bde5b3b2b16519c02f4/flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248", size = 61897, upload-time = "2022-08-03T23:21:25.027Z" },
-]
-
-[[package]]
-name = "formification"
-version = "1.2.1"
-source = { editable = "." }
-dependencies = [
-    { name = "beautifulsoup4" },
-    { name = "django", version = "5.2.17", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "django", version = "6.0.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "django-admin-ordering" },
-    { name = "django-ckeditor" },
-    { name = "django-filter" },
-    { name = "djangorestframework" },
-    { name = "nameparser" },
-    { name = "phonenumbers" },
-    { name = "pytz" },
-    { name = "pyzipcode" },
-    { name = "setuptools" },
-    { name = "six" },
-    { name = "tzlocal" },
-    { name = "us" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "black" },
-    { name = "factory-boy" },
-    { name = "flake8" },
-    { name = "pytest" },
-    { name = "pytest-django" },
-    { name = "pytest-playwright" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "beautifulsoup4", specifier = ">=4.12,<5" },
-    { name = "django", specifier = ">=4.2,<7" },
-    { name = "django-admin-ordering", specifier = ">=0.20,<1" },
-    { name = "django-ckeditor", specifier = ">=6.7,<7" },
-    { name = "django-filter", specifier = ">=24.3" },
-    { name = "djangorestframework", specifier = ">=3.15.2,<4" },
-    { name = "nameparser", specifier = ">=1.1.2,<3" },
-    { name = "phonenumbers", specifier = ">=8.12.50,<10" },
-    { name = "pytz" },
-    { name = "pyzipcode", specifier = ">=2,<4" },
-    { name = "setuptools", specifier = "<81" },
-    { name = "six" },
-    { name = "tzlocal", specifier = ">=5,<6" },
-    { name = "us", specifier = ">=3,<4" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "black", specifier = "==22.10.0" },
-    { name = "factory-boy", specifier = ">=3.3.3" },
-    { name = "flake8", specifier = "==5.0.4" },
-    { name = "pytest", specifier = ">=9.1.1" },
-    { name = "pytest-django", specifier = ">=4.14.0" },
-    { name = "pytest-playwright", specifier = ">=0.9.0" },
 ]
 
 [[package]]

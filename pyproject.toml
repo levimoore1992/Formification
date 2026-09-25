@@ -1,5 +1,5 @@
 [project]
-name = "formification"
+name = "django-formification"
 version = "1.2.1"
 description = "A Django app for building custom web forms and collecting submissions."
 readme = "README.md"
