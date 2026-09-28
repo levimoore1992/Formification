@@ -1,8 +1,12 @@
 from django.forms import fields, widgets
-from django.test import TestCase
+from django import VERSION
+from django.test import SimpleTestCase, TestCase, override_settings
+from unittest import skipUnless
+
+from django.utils.html import format_html
 
 from formification import models
-from formification.forms import CustomForm
+from formification.forms import CustomForm, ModuleScriptMedia
 
 
 class CustomFormTests(TestCase):
@@ -158,3 +162,74 @@ class CustomFormTests(TestCase):
 
             self.assertEqual(submission.custom_data["State"], "Maryland")
             self.assertEqual(submission.custom_data["City"], "Ellicott City")
+
+
+@override_settings(STATIC_URL="/static/")
+class ModuleScriptMediaTests(SimpleTestCase):
+    def test_form_media_renders_module_script(self):
+        html = str(CustomForm.media)
+        self.assertIn('src="/static/formification/dist/form.js"', html)
+        self.assertIn('type="module"', html)
+        self.assertIn("formification/dist/form.css", html)
+
+    def test_string_paths_and_render_attributes_are_escaped(self):
+        media = ModuleScriptMedia(js=["https://example.com/app.js?a=1&b=2"])
+        html = media.render_js(attrs={"nonce": '"quoted&nonce', "defer": True})[0]
+        self.assertHTMLEqual(
+            html,
+            '<script src="https://example.com/app.js?a=1&amp;b=2" '
+            'type="module" nonce="&quot;quoted&amp;nonce" defer></script>',
+        )
+
+    def test_html_assets_keep_their_own_renderer(self):
+        class Asset:
+            def __html__(self):
+                return format_html('<script src="{}" defer></script>', "/custom.js")
+
+        self.assertHTMLEqual(
+            ModuleScriptMedia(js=[Asset()]).render_js()[0],
+            '<script src="/custom.js" defer></script>',
+        )
+
+    @skipUnless(hasattr(widgets, "Script"), "Script was introduced in Django 5.2")
+    def test_script_objects_keep_attributes_without_mutation(self):
+        for attributes in (
+            {"integrity": "sha256-example", "defer": True},
+            {"type": "module"},
+        ):
+            with self.subTest(attributes=attributes):
+                script = widgets.Script("app.js", **attributes)
+                html = ModuleScriptMedia(js=[script]).render_js()[0]
+                self.assertIn('src="/static/app.js"', html)
+                self.assertEqual(html.count('type="module"'), 1)
+                self.assertEqual(script.attributes, attributes)
+                if "integrity" in attributes:
+                    self.assertIn('integrity="sha256-example"', html)
+
+    @skipUnless(
+        VERSION >= (6, 1), "Render-time media attrs were introduced in Django 6.1"
+    )
+    def test_django_media_render_passes_nonce_to_script(self):
+        media = ModuleScriptMedia(js=["app.js"])
+        self.assertHTMLEqual(
+            str(media.render(attrs={"nonce": "csp-token"})),
+            '<script src="/static/app.js" type="module" nonce="csp-token"></script>',
+        )
+
+    @skipUnless(
+        VERSION >= (6, 1), "Render-time media attrs were introduced in Django 6.1"
+    )
+    def test_explicit_module_type_accepts_render_nonce(self):
+        script = widgets.Script("app.js", type="module", integrity="sha256-example")
+        html = str(ModuleScriptMedia(js=[script]).render(attrs={"nonce": "csp-token"}))
+        self.assertIn('nonce="csp-token"', html)
+        self.assertIn('integrity="sha256-example"', html)
+        self.assertEqual(html.count('type="module"'), 1)
+
+    @skipUnless(
+        VERSION >= (6, 1), "Render-time media attrs were introduced in Django 6.1"
+    )
+    def test_conflicting_asset_attributes_follow_django_validation(self):
+        media = ModuleScriptMedia(js=[widgets.Script("app.js", nonce="asset-token")])
+        with self.assertRaisesMessage(ValueError, "conflicting attributes: nonce"):
+            media.render_js(attrs={"nonce": "render-token"})

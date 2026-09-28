@@ -28,16 +28,35 @@ class ModuleScriptMedia(forms.Media):
         ),
     }
 
-    def render_js(self):
+    def render_js(self, *, attrs=None):
+        from django.forms.utils import flatatt
         from django.utils.html import format_html
 
-        return [
-            format_html(
-                '<script type="module" src="{}"></script>',
-                self.absolute_path(path),
+        rendered = []
+        script_type = getattr(forms.widgets, "Script", ())
+        for path in self._js:
+            attributes = {"type": "module", **(attrs or {})}
+            if isinstance(path, script_type):
+                if hasattr(path, "render"):
+                    # Django 6.1 merges render-time attrs and checks conflicts.
+                    # Only supply our default type if the asset has none.
+                    defaults = {} if "type" in path.attributes else {"type": "module"}
+                    rendered.append(path.render(attrs={**defaults, **(attrs or {})}))
+                    continue
+                # Django 5.2/6.0 Script objects have no render(attrs=...) API.
+                attributes.update(path.attributes)
+                path = path.path
+            elif hasattr(path, "__html__"):
+                rendered.append(path.__html__())
+                continue
+            rendered.append(
+                format_html(
+                    '<script src="{}"{}></script>',
+                    self.absolute_path(path),
+                    flatatt(attributes),
+                )
             )
-            for path in self._js
-        ]
+        return rendered
 
 
 class CustomForm(forms.Form):

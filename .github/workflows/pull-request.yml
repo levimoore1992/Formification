@@ -14,7 +14,9 @@ jobs:
           - python: "3.11"
             django: "Django~=5.2.0"
           - python: "3.14"
-            django: "Django~=6.0"
+            django: "Django~=6.0.0"
+          - python: "3.14"
+            django: "Django~=6.1.0"
 
     steps:
       - name: 'Checkout Github Action'

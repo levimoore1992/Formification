@@ -118,7 +118,7 @@ def my_form(request):
 
 ### Python
 
-- Django >= 4.2, < 7
+- Django >= 4.2, < 7 (tested on 4.2, 5.2, 6.0, and 6.1)
 - Python >= 3.10
 - djangorestframework >= 3.15.2
 - django-filter >= 24.3
