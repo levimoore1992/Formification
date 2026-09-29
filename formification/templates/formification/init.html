@@ -1,0 +1,7 @@
+{% load static %}
+{{ form.media }}
+{{ config|json_script:config_id }}
+<script type="module">
+  import { initializeForm } from "{% static 'formification/init.js' %}";
+  initializeForm(JSON.parse(document.getElementById("{{ config_id }}").textContent));
+</script>

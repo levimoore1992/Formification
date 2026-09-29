@@ -1,4 +1,4 @@
-{% load static form %}
+{% load static form formification %}
 
 <!-- TODO: temporary; make more modular; DRY -->
 <link type="text/css" media="all" rel="stylesheet" href="{% static 'formification/css/gate-form.css' %}"/>
@@ -60,20 +60,7 @@
       <input type="submit" class="btn btn-primary btn-lg hidden-xs" value="Submit"/>
     </div>
 
-    {{ form.media|safe }}
-    <script type="module">
-      (function () {
-        var instanceId = "{{ form.instance_id }}";
-        var rulesData = {{ form.rules_json|safe }};
-        Formification.forms.add(instanceId, rulesData);
-
-        // TODO: refactor; generalize
-        /* if there are errors scroll to the error message */
-        if ($(".form-errors-summary").length) {
-          $(".form-errors-summary").get(0).scrollIntoView();
-        }
-      })();
-    </script>
+    {% formification_init form %}
 
   </form>
 </div>

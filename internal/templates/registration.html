@@ -1,3 +1,4 @@
+{% load formification %}
 <section class="">
     <div class="container">
         <form id="{{ form.instance_id }}" class="form" method="post" enctype="multipart/form-data" action="./{% if querystring %}?{{ querystring }}{% endif %}">
@@ -66,10 +67,4 @@
     </div>
 </section>
 
-<script type="module">
-  (function() {
-    var instanceId = "{{ form.instance_id }}";
-    var rulesData = {{ form.rules_json|safe }};
-    Formification.forms.add(instanceId, rulesData);
-  })();
-</script>
+{% formification_init form %}

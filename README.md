@@ -17,7 +17,7 @@ exportable from the admin interface.
 ## Installation
 
 ```shell
-pip install formification
+pip install django-formification
 ```
 
 Add it to your Django project:
@@ -113,6 +113,46 @@ def my_form(request):
   </body>
 </html>
 ```
+
+## Custom form layouts
+
+The default `{{ form }}` rendering includes initialization automatically. For a
+custom layout, load the `formification` tag library and put
+`{% formification_init form %}` after the form:
+
+```django
+{% load form formification %}
+<form id="{{ form.instance_id }}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+  {% for field in form.visible_fields %}
+    <div class="field-wrapper {{ field.field.widget|formification_field_classes }}">
+      {{ field.label_tag }}
+      {{ field|formification_extra_attributes }}
+      {{ field.errors }}
+    </div>
+  {% endfor %}
+  <button type="submit">Submit</button>
+</form>
+{% formification_init form %}
+```
+
+Keep the `.field-wrapper` around each visible field and render its widget to
+preserve the data attributes used by conditional rules and grouped choices.
+The form element's `id` must match the `instance_id` passed to `CustomForm`.
+Use a unique instance ID for each form on a page (letters, digits, underscores,
+and hyphens are recommended).
+
+The tag includes `form.media`, safely serializes rules with Django's
+`json_script`, and waits for the JavaScript module dependency before initializing.
+Use it once per form; repeated calls for the same form element are harmless.
+Multiple forms share the module, which the browser executes only once.
+
+When migrating a custom template, replace both `{{ form.media }}` and your
+inline `Formification.forms.add(...)` script with this tag. No additional tag
+is needed when using the default `{{ form }}` template. Serve the package's
+static assets normally, including `formification/init.js`; rerun `collectstatic`
+when deploying an upgrade.
 
 ## Dependencies
 

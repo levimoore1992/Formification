@@ -146,3 +146,48 @@ def test_browser_submit_redirects_and_persists(page, demo_data):
     # factory defaults flowed through untouched
     assert data["preferred_contact"] == "Email"
     assert "Reading" in data["hobbies"]
+
+
+def test_init_tag_supports_multiple_forms_and_repeated_calls(page, demo_data):
+    from django.template import Context, Template
+    from django.test import RequestFactory
+    from formification.forms import CustomForm
+
+    first = CustomForm(
+        request=RequestFactory().get("/"), instance_id="first-form", form=demo_data.form
+    )
+    second = CustomForm(
+        request=RequestFactory().get("/"),
+        instance_id="second-form",
+        form=demo_data.form,
+    )
+    html = Template(
+        "{% load formification %}<!doctype html><html><body>"
+        "{{ first }}{{ second }}{% formification_init first %}"
+        "</body></html>"
+    ).render(Context({"first": first, "second": second}))
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    page.route(
+        "**/multi-form-test/",
+        lambda route: route.fulfill(body=html, content_type="text/html"),
+    )
+    page.goto("/multi-form-test/")
+
+    for form_id in ("first-form", "second-form"):
+        form = page.locator("#" + form_id)
+        expect(form.locator("select[name='shade_1']")).to_be_visible()
+        expect(form.locator("select[name='shade_3']")).to_be_hidden()
+
+    page.locator("#first-form input[name='newsletter']").uncheck()
+    expect(page.locator("#first-form select[name='hobbies']")).to_be_hidden()
+    expect(page.locator("#second-form select[name='hobbies']")).to_be_visible()
+    # Exactly one registered change handler per form despite the duplicate tag.
+    handler_counts = page.evaluate(
+        """() => ['first-form', 'second-form'].map(id => {
+        const input = document.getElementById(id).querySelector('[name="newsletter"]');
+        return window.jQuery._data(input, 'events').change.length;
+    })"""
+    )
+    assert handler_counts == [1, 1]
+    assert errors == []
