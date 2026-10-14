@@ -85,11 +85,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm ci && npm run build
+      - run: npm ci && npm run build && npm test
         working-directory: formification/static/formification/vite-formification
       - name: Verify committed production assets
         run: |
-          test -z "$(git status --porcelain -- formification/static/formification/vite-formification/dist)"
+          test -z "$(git status --porcelain -- formification/static/formification/dist)"
 
   run-linter:
     name: Lint Code Base

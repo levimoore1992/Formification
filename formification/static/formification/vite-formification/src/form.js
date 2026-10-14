@@ -1,5 +1,4 @@
-import './globals.js'
-import './phoneNumber.js'
-import './custom_form.js'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'intl-tel-input/dist/css/intlTelInput.css'
+export { forms } from './custom_form.js';
+export { initializePhoneInputs } from './phoneNumber.js';
+import 'intl-tel-input/styles';
+import '../../css/custom_form.css';

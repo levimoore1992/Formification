@@ -15,8 +15,15 @@ class BuildWithVueAssets(build_py):
             raise RuntimeError(
                 "Build the Vue admin with npm ci && npm run build before packaging."
             )
-        # Repeated builds must not ship obsolete hashed entry points.
-        target = Path(self.build_lib) / relative
+        public = Path(__file__).parent / "formification/static/formification/dist"
+        if not (public / "form.js").exists() or not (public / "form.css").exists():
+            raise RuntimeError("Build the public form assets before packaging.")
+        if "Bootstrap" in (public / "form.css").read_text():
+            raise RuntimeError(
+                "Rebuild the public assets without Bootstrap before packaging."
+            )
+        # Clear deleted templates/styles and obsolete hashed assets on repeated builds.
+        target = Path(self.build_lib) / "formification"
         if target.exists():
             shutil.rmtree(target)
         super().run()

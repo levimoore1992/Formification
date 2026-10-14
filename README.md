@@ -7,8 +7,8 @@ exportable from the admin interface.
 
 - **Dynamic forms** — authors compose forms (fields, option lists, validation
   rules) entirely from the admin UI. No code is required to ship a new form.
-- **Public rendering** — forms render with a Bootstrap 3 stylesheet and plug
-  into standard Django form patterns for easy theming.
+- **Public rendering** — forms use an isolated default theme or an unstyled mode
+  for applications that supply their own design system.
 - **Submission collection** — each submission is stored with the form, source
   page, and metadata; retriable via the admin or the REST API.
 - **Vue 3 admin** — the form builder runs as a checked-in Vue SPA. It ships
@@ -122,7 +122,7 @@ custom layout, load the `formification` tag library and put
 
 ```django
 {% load form formification %}
-<form id="{{ form.instance_id }}" method="post" enctype="multipart/form-data">
+<form id="{{ form.instance_id }}" class="formification-form" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
   {% for field in form.visible_fields %}
@@ -154,6 +154,37 @@ is needed when using the default `{{ form }}` template. Serve the package's
 static assets normally, including `formification/init.js`; rerun `collectstatic`
 when deploying an upgrade.
 
+## Styling and host isolation (2.0)
+
+The default `style="scoped"` includes the standalone theme. Every theme and widget
+selector is scoped beneath `.formification-form`; there are no page-wide resets
+or remote font imports. Telephone widgets initialize only inside the form passed
+to the initialization tag. Each instance has distinct field IDs.
+
+For Tailwind or another host design system, omit the theme:
+
+```python
+form = CustomForm(request=request, instance_id="signup", form=definition,
+                  style="unstyled")
+# Or select it application-wide:
+FORMIFICATION_STYLE = "unstyled"
+```
+
+Unstyled forms still receive telephone-input and conditional-field assets. Keep
+`.formification-form` on custom form roots and use `{% formification_init form %}`;
+do not filter package CSS, bundle a second telephone stylesheet, or depend on a
+host jQuery version. The default template is `formification/form.html`.
+
+Version 2.0 removes Bootstrap and the `window.Formification` global. Replace manual
+initialization with the template tag. JavaScript integrations may import
+`initializeForm` from the static `formification/init.js` module and pass
+`{ instanceId, rules }`. Initialization is idempotent for each DOM form element.
+For a standard Django form using `PhoneInput`, put `class="formification-form"`
+on its form element and call `{% formification_init form instance_id="contact" %}`
+with its matching HTML ID. Other widget scripts retain their original script type.
+
+Rerun `collectstatic` when upgrading; database models and submissions are unchanged.
+
 ## Dependencies
 
 ### Python
@@ -167,8 +198,8 @@ when deploying an upgrade.
 
 ### JavaScript
 
-- The public forms bundle **jquery**, **Bootstrap**, and **intl-tel-input** into a
-  single checked-in bundle, so public-facing forms need no external JavaScript.
+- Public forms bundle private **jQuery** and **intl-tel-input** dependencies.
+  Bootstrap is not included, and host `$`/`jQuery` globals are never replaced.
 - The admin is a **Vue 3** SPA. The built bundle is checked in and ships inside
   the wheel — installing Formification needs **no Node.js runtime**. To change
   the admin, see the `README.md` inside

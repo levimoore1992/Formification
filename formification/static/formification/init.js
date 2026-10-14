@@ -1,4 +1,4 @@
-import './dist/form.js';
+import { forms, initializePhoneInputs } from './dist/form.js';
 
 const initializedForms = new WeakSet();
 
@@ -6,8 +6,10 @@ export function initializeForm({ instanceId, rules }) {
     const element = document.getElementById(instanceId);
     if (!element || initializedForms.has(element)) return;
 
-    window.Formification.forms.add(instanceId, rules);
+    element.classList.add("formification-form");
+    initializePhoneInputs(element);
+    forms.add(instanceId, rules || []);
     initializedForms.add(element);
-    const container = element.closest('.bootstrap-form') || element;
+    const container = element.closest('.formification-form') || element;
     container.querySelector('.form-errors-summary')?.scrollIntoView();
 }

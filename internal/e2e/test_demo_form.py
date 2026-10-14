@@ -118,7 +118,7 @@ def test_browser_submit_redirects_and_persists(page, demo_data):
     page.check(
         f"input[name='preferred_contact'][value='{demo_data.email.pk}']"
     )  # Email
-    # two submit inputs render (xs vs sm screens); the desktop one is visible
+    # A single responsive submit control works on desktop and mobile.
     page.locator("input[type='submit']").filter(visible=True).click()
 
     expect(page).to_have_url(re.compile(r"/completed/$"))
@@ -182,12 +182,7 @@ def test_init_tag_supports_multiple_forms_and_repeated_calls(page, demo_data):
     page.locator("#first-form input[name='newsletter']").uncheck()
     expect(page.locator("#first-form select[name='hobbies']")).to_be_hidden()
     expect(page.locator("#second-form select[name='hobbies']")).to_be_visible()
-    # Exactly one registered change handler per form despite the duplicate tag.
-    handler_counts = page.evaluate(
-        """() => ['first-form', 'second-form'].map(id => {
-        const input = document.getElementById(id).querySelector('[name="newsletter"]');
-        return window.jQuery._data(input, 'events').change.length;
-    })"""
-    )
-    assert handler_counts == [1, 1]
+    # Repeated tags must not duplicate widgets or disturb another form.
+    expect(page.locator("#first-form [name=phone_number_full]")).to_have_count(1)
+    expect(page.locator("#second-form [name=phone_number_full]")).to_have_count(1)
     assert errors == []

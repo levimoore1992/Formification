@@ -3,10 +3,9 @@ from django import VERSION
 from django.test import SimpleTestCase, TestCase, override_settings
 from unittest import skipUnless
 
-from django.utils.html import format_html
 
 from formification import models
-from formification.forms import CustomForm, ModuleScriptMedia
+from formification.forms import CustomForm, PublicFormMedia
 
 
 class CustomFormTests(TestCase):
@@ -66,6 +65,58 @@ class CustomFormTests(TestCase):
                     field.field.widget.__class__, widgets.TextInput
                 ),
             )
+
+    def make_form(self, **kwargs):
+        return CustomForm(
+            instance_id="style-test",
+            form=models.Form.objects.get(pk=self.form_id),
+            request=None,
+            **kwargs
+        )
+
+    def test_default_style_includes_scoped_theme(self):
+        form = self.make_form()
+        self.assertEqual(form.style, "scoped")
+        self.assertIn("formification/css/form-theme.css", str(form.media))
+
+    def test_unstyled_mode_keeps_widget_assets_without_theme(self):
+        form = self.make_form(style="unstyled")
+        html = str(form.media)
+        self.assertIn("formification/dist/form.css", html)
+        self.assertIn('type="module"', html)
+        self.assertNotIn("form-theme.css", html)
+
+    @override_settings(FORMIFICATION_STYLE="unstyled")
+    def test_application_can_select_unstyled_mode(self):
+        self.assertEqual(self.make_form().style, "unstyled")
+
+    def test_invalid_style_fails_clearly(self):
+        with self.assertRaisesMessage(ValueError, "style must be scoped or unstyled"):
+            self.make_form(style="bootstrap")
+
+    def test_forms_have_distinct_field_ids(self):
+        first = self.make_form()
+        second = CustomForm(
+            instance_id="second",
+            form=models.Form.objects.get(pk=self.form_id),
+            request=None,
+        )
+        self.assertNotEqual(
+            first["text-field-1"].id_for_label, second["text-field-1"].id_for_label
+        )
+
+    def test_third_party_widget_media_keeps_its_script_type(self):
+        class Editor(widgets.TextInput):
+            class Media:
+                js = ("editor.js",)
+                css = {"all": ("editor.css",)}
+
+        form = self.make_form(style="unstyled")
+        form.fields["text-field-1"].widget = Editor()
+        html = str(form.media)
+        self.assertIn("editor.css", html)
+        self.assertIn('<script src="/static/editor.js"></script>', html)
+        self.assertIn('src="/static/formification/dist/form.js" type="module"', html)
 
     def test_submission(self):
         """
@@ -165,71 +216,17 @@ class CustomFormTests(TestCase):
 
 
 @override_settings(STATIC_URL="/static/")
-class ModuleScriptMediaTests(SimpleTestCase):
-    def test_form_media_renders_module_script(self):
-        html = str(CustomForm.media)
+class PublicFormMediaTests(SimpleTestCase):
+    def test_public_module_type_survives_native_media_merging(self):
+        media = widgets.Media(js=PublicFormMedia.js, css=PublicFormMedia.css)
+        html = str(widgets.Media() + media)
         self.assertIn('src="/static/formification/dist/form.js"', html)
         self.assertIn('type="module"', html)
         self.assertIn("formification/dist/form.css", html)
 
-    def test_string_paths_and_render_attributes_are_escaped(self):
-        media = ModuleScriptMedia(js=["https://example.com/app.js?a=1&b=2"])
-        html = media.render_js(attrs={"nonce": '"quoted&nonce', "defer": True})[0]
-        self.assertHTMLEqual(
-            html,
-            '<script src="https://example.com/app.js?a=1&amp;b=2" '
-            'type="module" nonce="&quot;quoted&amp;nonce" defer></script>',
-        )
-
-    def test_html_assets_keep_their_own_renderer(self):
-        class Asset:
-            def __html__(self):
-                return format_html('<script src="{}" defer></script>', "/custom.js")
-
-        self.assertHTMLEqual(
-            ModuleScriptMedia(js=[Asset()]).render_js()[0],
-            '<script src="/custom.js" defer></script>',
-        )
-
-    @skipUnless(hasattr(widgets, "Script"), "Script was introduced in Django 5.2")
-    def test_script_objects_keep_attributes_without_mutation(self):
-        for attributes in (
-            {"integrity": "sha256-example", "defer": True},
-            {"type": "module"},
-        ):
-            with self.subTest(attributes=attributes):
-                script = widgets.Script("app.js", **attributes)
-                html = ModuleScriptMedia(js=[script]).render_js()[0]
-                self.assertIn('src="/static/app.js"', html)
-                self.assertEqual(html.count('type="module"'), 1)
-                self.assertEqual(script.attributes, attributes)
-                if "integrity" in attributes:
-                    self.assertIn('integrity="sha256-example"', html)
-
-    @skipUnless(
-        VERSION >= (6, 1), "Render-time media attrs were introduced in Django 6.1"
-    )
-    def test_django_media_render_passes_nonce_to_script(self):
-        media = ModuleScriptMedia(js=["app.js"])
-        self.assertHTMLEqual(
-            str(media.render(attrs={"nonce": "csp-token"})),
-            '<script src="/static/app.js" type="module" nonce="csp-token"></script>',
-        )
-
-    @skipUnless(
-        VERSION >= (6, 1), "Render-time media attrs were introduced in Django 6.1"
-    )
-    def test_explicit_module_type_accepts_render_nonce(self):
-        script = widgets.Script("app.js", type="module", integrity="sha256-example")
-        html = str(ModuleScriptMedia(js=[script]).render(attrs={"nonce": "csp-token"}))
+    @skipUnless(VERSION >= (6, 1), "Render-time media attrs require Django 6.1")
+    def test_native_media_preserves_module_type_and_csp_nonce(self):
+        media = widgets.Media(js=PublicFormMedia.js)
+        html = str(media.render(attrs={"nonce": "csp-token"}))
         self.assertIn('nonce="csp-token"', html)
-        self.assertIn('integrity="sha256-example"', html)
         self.assertEqual(html.count('type="module"'), 1)
-
-    @skipUnless(
-        VERSION >= (6, 1), "Render-time media attrs were introduced in Django 6.1"
-    )
-    def test_conflicting_asset_attributes_follow_django_validation(self):
-        media = ModuleScriptMedia(js=[widgets.Script("app.js", nonce="asset-token")])
-        with self.assertRaisesMessage(ValueError, "conflicting attributes: nonce"):
-            media.render_js(attrs={"nonce": "render-token"})

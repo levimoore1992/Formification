@@ -20,6 +20,29 @@ jobs:
         with:
           python-version: "3.11"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build and verify public form assets
+        run: npm ci && npm run build && npm test
+        working-directory: formification/static/formification/vite-formification
+
+      - name: Build and verify admin assets
+        run: npm ci && npm test && npm run build
+        working-directory: formification/static/admin/formification/vue-formification
+
+      - name: Test Python package
+        run: |
+          uv sync
+          uv run --no-sync python manage.py test
+          uv run --no-sync python manage.py makemigrations --check --dry-run
+
+      - name: Test embedded forms in Chromium
+        run: |
+          uv run --no-sync playwright install --with-deps chromium
+          uv run --no-sync pytest internal/e2e
+
       - name: Build the package
         run: uv build
 

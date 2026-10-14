@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from django.template import Context, Template
 from django.test import SimpleTestCase
 
-from formification.forms import CustomForm
+from formification.forms import PublicFormMedia
 
 
 class FormificationInitTests(SimpleTestCase):
@@ -23,7 +23,7 @@ class FormificationInitTests(SimpleTestCase):
         form = SimpleNamespace(
             instance_id=malicious,
             rules_data=[{"value": malicious}],
-            media=CustomForm.media,
+            media=PublicFormMedia(js=PublicFormMedia.js, css=PublicFormMedia.css),
         )
         soup = self.render([form])
         data = soup.find("script", type="application/json")
@@ -44,10 +44,14 @@ class FormificationInitTests(SimpleTestCase):
 
     def test_multiple_and_repeated_forms_have_unique_config_elements(self):
         first = SimpleNamespace(
-            instance_id="first", rules_data=[], media=CustomForm.media
+            instance_id="first",
+            rules_data=[],
+            media=PublicFormMedia(js=PublicFormMedia.js, css=PublicFormMedia.css),
         )
         second = SimpleNamespace(
-            instance_id="second", rules_data=[], media=CustomForm.media
+            instance_id="second",
+            rules_data=[],
+            media=PublicFormMedia(js=PublicFormMedia.js, css=PublicFormMedia.css),
         )
         soup = self.render([first, second, first])
         configs = soup.find_all("script", type="application/json")
@@ -56,3 +60,19 @@ class FormificationInitTests(SimpleTestCase):
             [json.loads(c.string)["instanceId"] for c in configs],
             ["first", "second", "first"],
         )
+
+    def test_standard_django_form_can_initialize_phone_widget(self):
+        from django import forms
+        from formification.widgets import PhoneInput
+
+        class ContactForm(forms.Form):
+            phone = forms.CharField(widget=PhoneInput())
+
+        form = ContactForm()
+        self.assertIn('type="module"', str(form.media))
+        html = Template(
+            "{% load formification %}{% formification_init form instance_id='contact' %}"
+        ).render(Context({"form": form}))
+        soup = BeautifulSoup(html, "html.parser")
+        config = json.loads(soup.find("script", type="application/json").string)
+        self.assertEqual(config, {"instanceId": "contact", "rules": []})

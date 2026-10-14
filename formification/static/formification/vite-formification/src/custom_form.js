@@ -1,12 +1,14 @@
-window.Formification = (function($) {
+import $ from 'jquery';
+
+const Formification = (function($) {
     'use strict';
 
     /*********** Form ***********/
-    var Form = function(instanceId, rulesData) {
+    var Form = function(element, rulesData) {
         var fields = {};  // TODO: assuming order doesn't matter; create ordered_fields array if necessary
 
         // get form element
-        this.$element = $('#' + instanceId);
+        this.$element = $(element);
 
         // init fields
         this.$element.find('.field-wrapper').each(function() {
@@ -495,7 +497,7 @@ window.Formification = (function($) {
     /****************************************/
     /*********** module functions ***********/
     /****************************************/
-    var _forms = {};
+    var _forms = new WeakMap();
     var forms = {};
 
     /**
@@ -504,8 +506,13 @@ window.Formification = (function($) {
      * @param rulesData dictionary of serialized Rules
      */
     forms.add = function(instanceId, rulesData) {
-        _forms[instanceId] = new Form(instanceId, rulesData);
+        const element = document.getElementById(instanceId);
+        if (!element) return null;
+        if (!_forms.has(element)) _forms.set(element, new Form(element, rulesData));
+        return _forms.get(element);
     };
 
     return { forms: forms };
 })($);
+
+export const forms = Formification.forms;

@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 import json
 
 from django import forms
+from django.conf import settings
+
+from formification.media import PublicFormMedia
 from django.template.context_processors import csrf
 from django.template.loader import render_to_string
 from django.utils.functional import cached_property
@@ -11,65 +14,26 @@ from django.utils.safestring import mark_safe
 from formification.rules import RuleAssessor
 
 
-class ModuleScriptMedia(forms.Media):
-    """Media that renders JS as ES module scripts.
-
-    The public form bundle (built with Vite) is an ES module: it lazy-loads the
-    intl-tel-input utils chunk with a dynamic ``import()``, which requires
-    ``import.meta``. A module script cannot be served as a classic script, so
-    override :meth:`render_js` to emit ``type="module"`` tags.
-    """
-
-    js = ("formification/dist/form.js",)
-    css = {
-        "all": (
-            "formification/dist/form.css",
-            "formification/css/custom_form.css",
-        ),
-    }
-
-    def render_js(self, *, attrs=None):
-        from django.forms.utils import flatatt
-        from django.utils.html import format_html
-
-        rendered = []
-        script_type = getattr(forms.widgets, "Script", ())
-        for path in self._js:
-            attributes = {"type": "module", **(attrs or {})}
-            if isinstance(path, script_type):
-                if hasattr(path, "render"):
-                    # Django 6.1 merges render-time attrs and checks conflicts.
-                    # Only supply our default type if the asset has none.
-                    defaults = {} if "type" in path.attributes else {"type": "module"}
-                    rendered.append(path.render(attrs={**defaults, **(attrs or {})}))
-                    continue
-                # Django 5.2/6.0 Script objects have no render(attrs=...) API.
-                attributes.update(path.attributes)
-                path = path.path
-            elif hasattr(path, "__html__"):
-                rendered.append(path.__html__())
-                continue
-            rendered.append(
-                format_html(
-                    '<script src="{}"{}></script>',
-                    self.absolute_path(path),
-                    flatatt(attributes),
-                )
-            )
-        return rendered
-
-
 class CustomForm(forms.Form):
     required_css_class = "required"
 
-    # Assigned explicitly (not via a nested `class Media:`) because Django's
-    # media_property flattens the declaration into a plain forms.Media, losing
-    # the render_js override above.
-    media = ModuleScriptMedia(js=ModuleScriptMedia.js, css=ModuleScriptMedia.css)
+    @property
+    def media(self):
+        css = dict(PublicFormMedia.css)
+        if self.style == "scoped":
+            css["all"] = (*css["all"], "formification/css/form-theme.css")
+        media = PublicFormMedia(js=PublicFormMedia.js, css=css) + super().media
+        return media
 
     def __init__(self, data=None, *args, **kwargs):
         self.instance_id = kwargs.pop("instance_id")
-        self.template = kwargs.pop("template", "formification/bootstrap-form.html")
+        self.template = kwargs.pop("template", "formification/form.html")
+        self.style = kwargs.pop(
+            "style", getattr(settings, "FORMIFICATION_STYLE", "scoped")
+        )
+        if self.style not in {"scoped", "unstyled"}:
+            raise ValueError("Formification style must be scoped or unstyled.")
+        kwargs.setdefault("auto_id", f"id_{self.instance_id}_%s")
 
         self.request = kwargs.pop("request")
         form = kwargs.pop("form")

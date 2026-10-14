@@ -211,10 +211,10 @@ class FormAdmin(admin.ModelAdmin):
                 return reverse("admin:%s" % admin_url.name)
         raise Exception("Could not identify a root URL")
 
-    def get_actions(self, request):
-        actions = super(FormAdmin, self).get_actions(request)
-        if "delete_selected" in actions:
-            del actions["delete_selected"]
+    def get_actions(self, request, action_location=None):
+        kwargs = {} if action_location is None else {"action_location": action_location}
+        actions = super().get_actions(request, **kwargs)
+        actions.pop("delete_selected", None)
         return actions
 
     def has_delete_permission(self, request, obj=None):

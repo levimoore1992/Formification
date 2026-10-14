@@ -1,6 +1,8 @@
 from django.forms.widgets import MultiWidget
 from django.forms.widgets import TextInput
 
+from formification.media import PublicFormMedia
+
 
 class GroupedChoiceWidget(MultiWidget):
     def __init__(self, widgets, attrs=None, widget_name="unknown"):
@@ -23,6 +25,7 @@ class PhoneInput(TextInput):
         super().__init__(attrs=attrs)
 
         self.attrs["autocomplete"] = "tel"
+        self.attrs["data-formification-phone"] = ""
         self.attrs.setdefault("extensionPrefix", " ext. ")
         self.attrs.setdefault("fullSuffix", "_full")
 
@@ -47,8 +50,4 @@ class PhoneInput(TextInput):
 
         return full_number
 
-    class Media:
-        js = ("formification/dist/form.js",)
-        css = {
-            "all": ("formification/dist/form.css",),
-        }
+    media = PublicFormMedia(js=PublicFormMedia.js, css=PublicFormMedia.css)
